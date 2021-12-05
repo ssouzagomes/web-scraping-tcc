@@ -1,4 +1,4 @@
-import requests, json, asyncio
+import requests, json, asyncio, csv
 from requests.models import HTTPError
 from requests.structures import CaseInsensitiveDict
 
@@ -17,32 +17,39 @@ async def get_followers(id):
 
   response = requests.get(url, headers=headers)
 
-  output = json.loads(response.text)
+  followers = json.loads(response.text)['data']
+
+  print(followers)
 
 
-async def liked_twittes(id):
+async def liked_tweets(id):
   url = "https://api.twitter.com/2/users/"+id+"/liked_tweets"
 
   response = requests.get(url, headers=headers)
 
-  output = json.loads(response.text)
+  liked = json.loads(response.text)['data']
 
-  print(output['data'])
+  print(liked)
 
 
 async def main():
   try:
-    url = "https://api.twitter.com/2/users/by/username/EpicGames"
+    url = "https://api.twitter.com/2/users/by?usernames=EpicGames&user.fields=description,location,url,created_at"
 
     response = requests.get(url, headers=headers)
 
-    output = json.loads(response.text)
+    users = json.loads(response.text)['data']
 
-    id = output['data']['id']
+    with open('users.tsv', 'wt') as out_file:
+      for user in users:
+        for column in user:
+          tsv_writer = csv.writer(out_file, delimiter='\t')
+          tsv_writer.writerow([column, user[column]])
 
-    await liked_twittes(id)
-    await get_followers(id)
+    userId = users[0]['id']
 
+    # await get_followers(userId)
+    # await liked_tweets(id)
     
   except HTTPError as http_error:
     print('HTTP error occurred: ' + http_error)
