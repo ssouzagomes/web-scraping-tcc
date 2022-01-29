@@ -34,7 +34,7 @@ async def liked_tweets(id):
 
 async def main():
   try:
-    url = "https://api.twitter.com/2/users/by?usernames=EpicGames&user.fields=description,location,url,created_at"
+    url = "https://api.twitter.com/2/users/by?usernames=EpicGames&user.fields=description,location,url,created_at,public_metrics"
 
     response = requests.get(url, headers=headers)
 
