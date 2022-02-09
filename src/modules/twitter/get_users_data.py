@@ -17,8 +17,16 @@ async def execute(headers):
     with open('users.tsv', 'wt') as out_file:
       for user in users:
         for column in user:
-          tsv_writer = csv.writer(out_file, delimiter='\t')
-          tsv_writer.writerow([column, user[column]])
+          if(column == 'public_metrics'):
+            tsv_writer = csv.writer(out_file, delimiter='\t')
+            tsv_writer.writerow(['followers_count', user[column]['followers_count']])
+
+            tsv_writer = csv.writer(out_file, delimiter='\t')
+            tsv_writer.writerow(['following_count', user[column]['following_count']])
+
+          else:
+            tsv_writer = csv.writer(out_file, delimiter='\t')
+            tsv_writer.writerow([column, user[column]])
 
     user_ids = []
 
