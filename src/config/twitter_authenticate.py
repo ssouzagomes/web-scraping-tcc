@@ -2,7 +2,7 @@ from requests.structures import CaseInsensitiveDict
 from configparser import ConfigParser
 
 config = ConfigParser(interpolation=None)
-config.read('environment.ini')
+config.read('env.ini')
 
 twitter_api = config['twitter_api']
 

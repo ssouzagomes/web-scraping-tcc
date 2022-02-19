@@ -7,7 +7,7 @@ async def execute():
   config = ConfigParser()
 
   # read config file
-  config.read('environment.ini')
+  config.read('env.ini')
 
   # Connect to your postgres DB
   host = config['postgresql']['host']

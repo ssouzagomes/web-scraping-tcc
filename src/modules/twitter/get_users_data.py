@@ -23,7 +23,6 @@ async def execute(headers):
 
             tsv_writer = csv.writer(out_file, delimiter='\t')
             tsv_writer.writerow(['following_count', user[column]['following_count']])
-
           else:
             tsv_writer = csv.writer(out_file, delimiter='\t')
             tsv_writer.writerow([column, user[column]])
