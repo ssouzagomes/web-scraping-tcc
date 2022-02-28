@@ -1,7 +1,7 @@
 import requests, json, csv
 from requests.models import HTTPError
 
-from modules.twitter import get_tweets_data
+from modules.twitter import GetTweetsData
 
 async def execute(headers):
   try:
@@ -33,7 +33,7 @@ async def execute(headers):
       if(user['protected'] == False):
         user_ids.append(user['id'])
 
-    await get_tweets_data.execute(user_ids, headers)
+    await GetTweetsData.execute(user_ids, headers)
     
   except HTTPError as http_error:
     print('HTTP error occurred: %s' %http_error)

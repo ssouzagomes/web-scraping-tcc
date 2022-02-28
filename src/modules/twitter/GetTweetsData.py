@@ -15,7 +15,7 @@ async def execute(user_ids, headers):
       if('data' in json.loads(response.text)):
         tweets = json.loads(response.text)['data']
 
-        with open(user_id+'tweets.tsv', 'wt') as out_file:
+        with open(user_id+'-tweets.tsv', 'wt') as out_file:
           for tweet in tweets:
             for column in tweet:
               if(column == 'public_metrics'):
