@@ -1,7 +1,7 @@
 async def execute(cursor, connection):
   cursor.execute(
     """CREATE TABLE IF NOT EXISTS games (
-      id INT UNIQUE NOT NULL,
+      id character varying UNIQUE NOT NULL,
       name character varying NOT NULL,
       game_slug character varying NOT NULL,
       price character varying NOT NULL,
@@ -24,7 +24,7 @@ async def execute(cursor, connection):
       graphics character varying,
       storage character varying,
       languages character varying,
-      game_id INT NOT NULL,
+      game_id character varying NOT NULL,
       PRIMARY KEY (id),
       FOREIGN KEY (game_id) REFERENCES games (id)
     );"""
@@ -39,7 +39,7 @@ async def execute(cursor, connection):
       comment character varying NOT NULL,
       date timestamp NOT NULL,
       top_critic BOOLEAN NOT NULL DEFAULT FALSE,
-      game_id INT NOT NULL,
+      game_id character varying NOT NULL,
       PRIMARY KEY (id),
       FOREIGN KEY (game_id) REFERENCES games (id)
     );"""
@@ -56,7 +56,7 @@ async def execute(cursor, connection):
       join_date timestamp NOT NULL,
       following INT NOT NULL,
       followers INT NOT NULL,
-      game_id INT NOT NULL,
+      game_id character varying NOT NULL,
       PRIMARY KEY (id),
       FOREIGN KEY (game_id) REFERENCES games (id)
     );"""
@@ -83,7 +83,7 @@ async def execute(cursor, connection):
       id uuid NOT NULL DEFAULT uuid_generate_v4(),
       description character varying NOT NULL,
       url character varying NOT NULL,
-      game_id INT NOT NULL,
+      game_id character varying NOT NULL,
       PRIMARY KEY (id),
       FOREIGN KEY (game_id) REFERENCES games (id)
     );"""

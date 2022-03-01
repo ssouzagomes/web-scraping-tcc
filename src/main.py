@@ -21,7 +21,8 @@ if option == "1":
   asyncio.run(CreateSchema.execute(cursor, connection))
 
 elif option == "2":
-  asyncio.run(getGames.execute())
+  cursor, connection = asyncio.run(DatabaseConnection.execute())
+  asyncio.run(getGames.execute(cursor, connection))
 
 elif option == "3":
   print('previews')
