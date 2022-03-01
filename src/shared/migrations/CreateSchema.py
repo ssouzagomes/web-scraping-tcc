@@ -3,6 +3,7 @@ async def execute(cursor, connection):
     """CREATE TABLE IF NOT EXISTS games (
       id INT UNIQUE NOT NULL,
       name character varying NOT NULL,
+      game_slug character varying NOT NULL,
       price character varying NOT NULL,
       release_date timestamp NOT NULL,
       platform character varying,

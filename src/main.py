@@ -6,8 +6,8 @@ sys.dont_write_bytecode = True
 from shared.migrations import CreateSchema
 from config import DatabaseConnection, TwitterAuthenticate
 
-from modules.twitter import GetUsersData
-from modules.epic_games import GetGamesData
+from modules.twitter import getUsersData
+from modules.epic_games import getGames
 
 print('### CHOOSE ONE OPTION ###\n')
 
@@ -21,14 +21,14 @@ if option == "1":
   asyncio.run(CreateSchema.execute(cursor, connection))
 
 elif option == "2":
-  asyncio.run(GetGamesData.execute())
+  asyncio.run(getGames.execute())
 
 elif option == "3":
   print('previews')
   # asyncio.run(GetGamesData.execute())
 
 elif option == "4":
-  asyncio.run(GetUsersData.execute(TwitterAuthenticate.headers))
+  asyncio.run(getUsersData.execute(TwitterAuthenticate.headers))
 
 else:
   print('Opção inválida!')

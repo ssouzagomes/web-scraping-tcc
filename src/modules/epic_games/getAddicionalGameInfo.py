@@ -1,9 +1,12 @@
 import requests
 from requests.models import HTTPError
 
-async def execute():
+async def execute(game):
   try:
-    response = requests.get("https://store-content-ipv4.ak.epicgames.com/api/pt-BR/content/products/not-tonight-2")
+    response = requests.get("https://store-content-ipv4.ak.epicgames.com/api/pt-BR/content/products/assassins-creed-1")
+
+    print(game['title'])
+
 
     file = open("addicional-info-game.json","w")
 

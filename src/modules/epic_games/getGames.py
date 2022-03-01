@@ -1,5 +1,7 @@
-import requests, json, csv
+import requests, json
 from requests.models import HTTPError
+
+from modules.epic_games import getAddicionalGameInfo
 
 async def execute():
   try:
@@ -14,11 +16,20 @@ async def execute():
 
     games = json.loads(response.text)['data']['Catalog']['searchStore']['elements']
 
-    with open('games.csv', 'wt') as out_file:
-      for game in games:
-        for column in game:
-          tsv_writer = csv.writer(out_file, delimiter='\t')
-          tsv_writer.writerow([column, game[column]])
+    file = open("game.json","w")
+
+    file.write(response.text)
+
+    file.close()
+
+    for game in games:
+      await getAddicionalGameInfo.execute(game)
+
+    # with open('game.csv', 'wt') as out_file:
+    #   for game in games:
+    #     for column in game:
+    #       tsv_writer = csv.writer(out_file, delimiter='\t')
+    #       tsv_writer.writerow([column, game[column]])
           
   except HTTPError as http_error:
     print('HTTP error occurred: %s' %http_error)
