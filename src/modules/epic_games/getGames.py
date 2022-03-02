@@ -3,16 +3,14 @@ from requests.models import HTTPError
 
 from modules.epic_games import getAddicionalGameInfo
 
-async def execute(cursor, connection):
+async def execute():
   try:
     response = requests.get('https://www.epicgames.com/graphql?operationName=' +
     'searchStoreQuery&variables={"allowCountries":"US",' +
     '"category":"games/edition/base|software/edition/base|editors|bundles/games",'+
-    '"count":2,"country":"US","locale":"en-US","releaseDate":"[,2022-02-19T17:50:56.950Z]",'+
+    '"count":5,"country":"US","locale":"en-US","releaseDate":"[,2022-02-19T17:50:56.950Z]",'+
     '"sortBy":"releaseDate","sortDir":"ASC"}&extensions={"persistedQuery":'+
     '{"version":1,"sha256Hash":"6e7c4dd0177150eb9a47d624be221929582df8648e7ec271c821838ff4ee148e"}}')
-
-    # print(len(json.loads(response.text)['data']['Catalog']['searchStore']['elements']))
 
     games = json.loads(response.text)['data']['Catalog']['searchStore']['elements']
 
@@ -21,13 +19,9 @@ async def execute(cursor, connection):
     # file.close()
 
     for game in games:
-      await getAddicionalGameInfo.execute(game, cursor, connection)
+      await getAddicionalGameInfo.execute(game)
 
-    # with open('game.csv', 'wt') as out_file:
-    #   for game in games:
-    #     for column in game:
-    #       tsv_writer = csv.writer(out_file, delimiter='\t')
-    #       tsv_writer.writerow([column, game[column]])
+    print("\nRecord inserted successfully into games table.\n")
           
   except HTTPError as http_error:
     print('HTTP error occurred: %s' %http_error)

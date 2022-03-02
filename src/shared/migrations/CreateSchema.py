@@ -3,7 +3,7 @@ async def execute(cursor, connection):
     """CREATE TABLE IF NOT EXISTS games (
       id character varying UNIQUE NOT NULL,
       name character varying NOT NULL,
-      game_slug character varying NOT NULL,
+      game_slug character varying UNIQUE NOT NULL,
       price character varying NOT NULL,
       release_date timestamp NOT NULL,
       platform character varying,
@@ -11,6 +11,8 @@ async def execute(cursor, connection):
       developer character varying,
       publisher character varying,
       genres character varying,
+      created_at timestamp NOT NULL DEFAULT NOW(),
+      updated_at timestamp NOT NULL DEFAULT NOW(),
       PRIMARY KEY (id)
     );"""
   )
@@ -25,6 +27,8 @@ async def execute(cursor, connection):
       storage character varying,
       languages character varying,
       game_id character varying NOT NULL,
+      created_at timestamp NOT NULL DEFAULT NOW(),
+      updated_at timestamp NOT NULL DEFAULT NOW(),
       PRIMARY KEY (id),
       FOREIGN KEY (game_id) REFERENCES games (id)
     );"""
@@ -40,6 +44,8 @@ async def execute(cursor, connection):
       date timestamp NOT NULL,
       top_critic BOOLEAN NOT NULL DEFAULT FALSE,
       game_id character varying NOT NULL,
+      created_at timestamp NOT NULL DEFAULT NOW(),
+      updated_at timestamp NOT NULL DEFAULT NOW(),
       PRIMARY KEY (id),
       FOREIGN KEY (game_id) REFERENCES games (id)
     );"""
@@ -57,6 +63,8 @@ async def execute(cursor, connection):
       following INT NOT NULL,
       followers INT NOT NULL,
       game_id character varying NOT NULL,
+      created_at timestamp NOT NULL DEFAULT NOW(),
+      updated_at timestamp NOT NULL DEFAULT NOW(),
       PRIMARY KEY (id),
       FOREIGN KEY (game_id) REFERENCES games (id)
     );"""
@@ -73,6 +81,8 @@ async def execute(cursor, connection):
       quantity_comments INT,
       timestamp timestamp NOT NULL,
       twitter_account_id uuid NOT NULL,
+      created_at timestamp NOT NULL DEFAULT NOW(),
+      updated_at timestamp NOT NULL DEFAULT NOW(),
       PRIMARY KEY (id),
       FOREIGN KEY (twitter_account_id) REFERENCES twitter_accounts (id)
     );"""
@@ -84,6 +94,8 @@ async def execute(cursor, connection):
       description character varying NOT NULL,
       url character varying NOT NULL,
       game_id character varying NOT NULL,
+      created_at timestamp NOT NULL DEFAULT NOW(),
+      updated_at timestamp NOT NULL DEFAULT NOW(),
       PRIMARY KEY (id),
       FOREIGN KEY (game_id) REFERENCES games (id)
     );"""
