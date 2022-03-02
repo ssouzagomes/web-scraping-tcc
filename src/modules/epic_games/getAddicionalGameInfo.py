@@ -9,9 +9,9 @@ async def execute(game, cursor, connection):
 
     addicionalGameInfo = json.loads(response.text)['pages'][0]['data']
 
-    file = open("addicional-info-game.json","w")
-    file.write(response.text)
-    file.close()
+    # file = open("addicional-info-game.json","w")
+    # file.write(response.text)
+    # file.close()
 
     platform = ''
     description = ''
@@ -44,20 +44,38 @@ async def execute(game, cursor, connection):
       'description': description,
       'developer': developer,
       'publisher': publisher,
-      'genres':genres
+      'genres': genres
     }
 
-    print(json.dumps(data, indent=4))
-    print("\n")
+    query = """ INSERT INTO games(
+      id, name, game_slug, price, release_date, platform, description, developer, publisher, genres
+    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) """
+
+    values = (
+      data['id'], data['name'], data['game_slug'],
+      data['price'], data['release_date'], data['platform'],
+      data['description'], data['developer'], data['publisher'], data['genres']
+    )
 
     # cursor.execute(
     #   """INSERT INTO games (
     #     id, name, game_slug, price, release_date,
     #     platform, description, developer, publisher, genres
     #   ) VALUES (
-    #     %s,
-    #   );"""
+    #     '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}', '{}'
+    #   );""".format(
+    #     data['id'], data['name'], data['game_slug'],
+    #     data['price'], data['release_date'], data['platform'],
+    #     data['description'], data['developer'], data['publisher'], data['genres']
+    #   )
     # )
+
+    cursor.execute(query, values)
+
+    connection.commit()
+
+    count = cursor.rowcount
+    print(count, "Record inserted successfully into games table.\n")
   except HTTPError as http_error:
     print('HTTP error occurred: %s' %http_error)
   except Exception as error:
