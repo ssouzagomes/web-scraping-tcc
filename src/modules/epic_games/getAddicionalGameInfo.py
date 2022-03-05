@@ -4,7 +4,6 @@ from requests.models import HTTPError
 
 from modules.epic_games import insertInDatabase
 
-
 async def execute(game):
   try:
     gameSlug = game['catalogNs']['mappings'][0]['pageSlug']
@@ -53,6 +52,8 @@ async def execute(game):
       'genres': genres
     }
 
+    # print(json.dumps(formattedGame, indent=4))
+
     socialNetworks = addicionalGameInfo['socialLinks']
 
     if '_type' in socialNetworks:
@@ -67,6 +68,19 @@ async def execute(game):
     for key in socialNetworks:
       if socialNetworks[key] != '':
         formattedSocialNetworks[key] = socialNetworks[key]
+
+    # specifications = addicionalGameInfo['requirements']['systems']
+
+    # print(json.dumps(specifications, indent=4))
+
+    # formattedSpecifications = []
+
+    # for specification in specifications:
+    #   if '_type' in specification:
+    #     del specification['_type']
+    #   formattedSpecifications.append(specification)
+
+    # print(json.dumps(formattedSpecifications, indent=4))
 
     await insertInDatabase.execute(formattedGame, formattedSocialNetworks)
 
