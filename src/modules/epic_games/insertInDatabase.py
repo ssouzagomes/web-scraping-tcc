@@ -2,7 +2,7 @@ from config import DatabaseConnection
 
 async def execute(formattedGame, formattedSocialNetworks):
   try:
-    insertInGamesQuery = """ INSERT INTO games(
+    insertInGamesQuery = '''INSERT INTO games(
       id,
       name,
       game_slug,
@@ -12,7 +12,7 @@ async def execute(formattedGame, formattedSocialNetworks):
       developer,
       publisher,
       genres
-    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING """
+    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING'''
 
     gameValues = (
       formattedGame['id'],
@@ -33,11 +33,11 @@ async def execute(formattedGame, formattedSocialNetworks):
 
     connection.commit()
 
-    insertInSocialNetworkQuery = """ INSERT INTO social_networks(
+    insertInSocialNetworkQuery = '''INSERT INTO social_networks(
       description,
       url,
       game_id
-    ) VALUES (%s, %s, %s) ON CONFLICT DO NOTHING """
+    ) VALUES (%s, %s, %s) ON CONFLICT DO NOTHING'''
 
     if len(formattedSocialNetworks) > 0:
       for description in formattedSocialNetworks:
@@ -51,6 +51,5 @@ async def execute(formattedGame, formattedSocialNetworks):
 
         connection.commit()
 
-    
   except Exception as error:
     print('Internal error occurred: %s' %error)

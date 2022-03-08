@@ -6,7 +6,7 @@ sys.dont_write_bytecode = True
 from shared.migrations import CreateSchema
 from config import DatabaseConnection, TwitterAuthenticate
 
-from modules.twitter.services import getUsersService
+from modules.twitter.services import createTwitterAccountsService
 from modules.epic_games import getGames
 
 async def __main__():
@@ -29,7 +29,7 @@ async def __main__():
     # await GetGamesData.execute()
 
   elif option == "4":
-    await getUsersService.execute(TwitterAuthenticate.headers)
+    await createTwitterAccountsService.execute(TwitterAuthenticate.headers)
 
   else:
     print('Opção inválida!')

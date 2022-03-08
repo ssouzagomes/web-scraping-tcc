@@ -1,5 +1,3 @@
-import asyncio
-
 from config import DatabaseConnection
 
 async def getAllUsernames():

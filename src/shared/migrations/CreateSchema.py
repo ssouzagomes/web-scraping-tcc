@@ -55,7 +55,7 @@ async def execute(cursor, connection):
     """CREATE TABLE IF NOT EXISTS twitter_accounts (
       id uuid NOT NULL DEFAULT uuid_generate_v4(),
       name character varying NOT NULL,
-      username character varying NOT NULL,
+      username character varying UNIQUE NOT NULL,
       bio character varying,
       location character varying,
       website character varying,
@@ -92,7 +92,7 @@ async def execute(cursor, connection):
     """CREATE TABLE IF NOT EXISTS social_networks (
       id uuid NOT NULL DEFAULT uuid_generate_v4(),
       description character varying NOT NULL,
-      url character varying NOT NULL,
+      url character varying UNIQUE NOT NULL,
       game_id character varying NOT NULL,
       created_at timestamp NOT NULL DEFAULT NOW(),
       updated_at timestamp NOT NULL DEFAULT NOW(),
