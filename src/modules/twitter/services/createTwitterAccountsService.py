@@ -28,7 +28,7 @@ async def execute(headers):
       if(twitterAccount['protected'] == False):
         twitterAccountIds.append(twitterAccount['id'])
 
-    # await createTweetsService.execute(twitterAccountIds, headers)
+    await createTweetsService.execute(twitterAccountIds, headers)
 
   except HTTPError as http_error:
     print('HTTP error occurred: %s' %http_error)

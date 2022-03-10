@@ -73,12 +73,12 @@ async def execute(cursor, connection):
   cursor.execute(
     """CREATE TABLE IF NOT EXISTS tweets (
       id uuid NOT NULL DEFAULT uuid_generate_v4(),
-      text character varying NOT NULL,
-      url_media character varying,
+      text character varying UNIQUE NOT NULL,
+      url_media character varying UNIQUE,
       quantity_likes INT,
       quantity_retweets INT,
       quantity_quotes INT,
-      quantity_comments INT,
+      quantity_replys INT,
       timestamp timestamp NOT NULL,
       twitter_account_id uuid NOT NULL,
       created_at timestamp NOT NULL DEFAULT NOW(),

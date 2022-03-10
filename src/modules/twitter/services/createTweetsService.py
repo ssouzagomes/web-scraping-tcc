@@ -1,40 +1,55 @@
-import requests, json, csv
+import requests, json
 from requests.models import HTTPError
 
-async def execute(user_ids, headers):
+async def execute(twitterAccountIds, headers):
   try:
-    for user_id in user_ids:
-      
-      url = ("https://api.twitter.com/2/users/%s/tweets?max_results=5" % user_id +
-        "&expansions=attachments.media_keys,in_reply_to_user_id" +
+    for twitterAccountId in twitterAccountIds:
+      url = ("https://api.twitter.com/2/users/%s/tweets?max_results=5" % twitterAccountId +
+        "&expansions=attachments.media_keys" +
         "&tweet.fields=public_metrics,created_at" +
-        "&media.fields=preview_image_url,url")
+        "&media.fields=media_key,preview_image_url,type,url")
 
       response = requests.get(url, headers=headers)
 
       if('data' in json.loads(response.text)):
         tweets = json.loads(response.text)['data']
 
-        with open(user_id+'-tweets.tsv', 'wt') as out_file:
-          for tweet in tweets:
-            for column in tweet:
-              if(column == 'public_metrics'):
-                tsv_writer = csv.writer(out_file, delimiter='\t')
-                tsv_writer.writerow(['retweet_count', tweet[column]['retweet_count']])
+        medias = json.loads(response.text)['includes']['media']
 
-                tsv_writer = csv.writer(out_file, delimiter='\t')
-                tsv_writer.writerow(['reply_count', tweet[column]['reply_count']])
+        for tweet in tweets:
+          publicMetrics = tweet['public_metrics']
 
-                tsv_writer = csv.writer(out_file, delimiter='\t')
-                tsv_writer.writerow(['like_count', tweet[column]['like_count']])
+          formattedTweet = {
+            'text': tweet['text'],
+            'timestamp': tweet['created_at'],
+            'quantity_likes': publicMetrics['like_count'],
+            'quantity_retweets': publicMetrics['retweet_count'],
+            'quantity_quotes': publicMetrics['quote_count'],
+            'quantity_replys': publicMetrics['reply_count'],
+            'twitter_account_id': twitterAccountId,
+            'url_media': ()
+          }
 
-                tsv_writer = csv.writer(out_file, delimiter='\t')
-                tsv_writer.writerow(['quote_count', tweet[column]['quote_count']])
-              
-              else:
-                tsv_writer = csv.writer(out_file, delimiter='\t')
-                tsv_writer.writerow([column, tweet[column]])
+          if 'attachments' in tweet:
+            if 'media_keys' in tweet['attachments']:
+              media_keys = tweet['attachments']['media_keys']
 
+              for media in medias:
+                for media_key in media_keys:
+                  if media['media_key'] == media_key and 'preview_image_url' in media:
+                    formattedTweet['url_media'] += (media['preview_image_url'],)
+
+          if len(formattedTweet['url_media']) > 0:
+            formattedTweet['url_media'] = ','.join(formattedTweet['url_media'])
+          else:
+            formattedTweet['url_media'] = ''
+
+          print(json.dumps(formattedTweet, indent=4))
+          print('\n')
+
+        file = open("tweets.json","w")
+        file.write(response.text)
+        file.close()
 
   except HTTPError as http_error:
     print('HTTP error occurred: %s' %http_error)
