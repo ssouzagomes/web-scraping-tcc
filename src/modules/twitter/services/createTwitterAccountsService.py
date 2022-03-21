@@ -16,19 +16,21 @@ async def execute(headers):
 
     twitterAccounts = json.loads(response.text)['data']
 
-    file = open("users.json","w")
-    file.write(response.text)
-    file.close()
+    # file = open("users.json","w")
+    # file.write(response.text)
+    # file.close()
 
     await twitterAccountsRepository.create(twitterAccounts)
 
     twitterAccountIds = []
+    twitterAccountUsernames = []
 
     for twitterAccount in twitterAccounts:
       if(twitterAccount['protected'] == False):
         twitterAccountIds.append(twitterAccount['id'])
+        twitterAccountUsernames.append(twitterAccount['username'])
 
-    await createTweetsService.execute(twitterAccountIds, headers)
+    await createTweetsService.execute(twitterAccountIds, twitterAccountUsernames, headers)
 
   except HTTPError as http_error:
     print('HTTP error occurred: %s' %http_error)

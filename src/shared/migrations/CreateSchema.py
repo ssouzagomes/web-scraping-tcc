@@ -74,7 +74,7 @@ async def execute(cursor, connection):
     """CREATE TABLE IF NOT EXISTS tweets (
       id uuid NOT NULL DEFAULT uuid_generate_v4(),
       text character varying UNIQUE NOT NULL,
-      url_media character varying UNIQUE,
+      url_media character varying,
       quantity_likes INT,
       quantity_retweets INT,
       quantity_quotes INT,

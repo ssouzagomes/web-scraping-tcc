@@ -1,15 +1,21 @@
 import requests, json
 from requests.models import HTTPError
 
-async def execute(twitterAccountIds, headers):
+from modules.twitter.repositories import tweetRepository
+
+async def execute(twitterAccountIds, twitterAccountUsernames, headers):
   try:
-    for twitterAccountId in twitterAccountIds:
+    for index, twitterAccountId in enumerate(twitterAccountIds):
       url = ("https://api.twitter.com/2/users/%s/tweets?max_results=5" % twitterAccountId +
         "&expansions=attachments.media_keys" +
         "&tweet.fields=public_metrics,created_at" +
         "&media.fields=media_key,preview_image_url,type,url")
 
       response = requests.get(url, headers=headers)
+
+      file = open("tweets.json","w")
+      file.write(response.text)
+      file.close()
 
       if('data' in json.loads(response.text)):
         tweets = json.loads(response.text)['data']
@@ -44,13 +50,9 @@ async def execute(twitterAccountIds, headers):
           else:
             formattedTweet['url_media'] = ''
 
-          print(json.dumps(formattedTweet, indent=4))
-          print('\n')
+          await tweetRepository.create(formattedTweet, twitterAccountUsernames[index])
 
-        file = open("tweets.json","w")
-        file.write(response.text)
-        file.close()
-
+    print("\nTweets inserted successfully into tweets table.\n")
   except HTTPError as http_error:
     print('HTTP error occurred: %s' %http_error)
   except Exception as error:

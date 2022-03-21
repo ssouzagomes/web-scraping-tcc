@@ -50,6 +50,6 @@ async def create(twitter_accounts):
 
     connection.close()
 
-    print("\nRecord inserted successfully into games table.\n")
+    print("\nTwitter accounts inserted successfully into twitter_accounts table.\n")
   except Exception as error:
     print('Internal error occurred: %s' %error)
