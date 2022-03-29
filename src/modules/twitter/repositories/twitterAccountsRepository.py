@@ -1,4 +1,5 @@
 from config import DatabaseConnection
+import json
 
 async def create(twitter_accounts):
   try:
@@ -32,21 +33,28 @@ async def create(twitter_accounts):
 
       game_id = cursor.fetchone()
 
-      valuesTwitterAccount = (
-        twitter_account['name'],
-        twitter_account['username'],
-        twitter_account['description'],
-        twitter_account['location'],
-        twitter_account['url'],
-        twitter_account['created_at'],
-        twitter_account['public_metrics']['following_count'],
-        twitter_account['public_metrics']['followers_count'],
-        ''.join(game_id)
-      )
+      if game_id != None:
+        game_id = ''.join(game_id)
 
-      cursor.execute(queryTwitterAccount, valuesTwitterAccount)
+        location = ''
+        if 'location' in twitter_account:
+          location = twitter_account['location']
 
-      connection.commit()
+        valuesTwitterAccount = (
+          twitter_account['name'],
+          twitter_account['username'],
+          twitter_account['description'],
+          location,
+          twitter_account['url'],
+          twitter_account['created_at'],
+          twitter_account['public_metrics']['following_count'],
+          twitter_account['public_metrics']['followers_count'],
+          game_id
+        )
+
+        cursor.execute(queryTwitterAccount, valuesTwitterAccount)
+
+        connection.commit()
 
     connection.close()
 
