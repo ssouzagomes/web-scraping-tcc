@@ -19,6 +19,8 @@ async def execute(formattedGame, addicionalGameInfo):
       if socialNetworks[key] != '':
         formattedSocialNetworks[key] = socialNetworks[key]
 
+    await socialNetworksRepository.create(formattedGame, formattedSocialNetworks)
+    
     # specifications = addicionalGameInfo['requirements']['systems']
 
     # print(json.dumps(specifications, indent=4))
@@ -32,7 +34,6 @@ async def execute(formattedGame, addicionalGameInfo):
 
     # print(json.dumps(formattedSpecifications, indent=4))
 
-    await socialNetworksRepository.create(formattedGame, formattedSocialNetworks)
 
   except HTTPError as http_error:
     print('HTTP error occurred: %s' % http_error)

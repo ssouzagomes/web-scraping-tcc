@@ -6,16 +6,17 @@ sys.dont_write_bytecode = True
 from shared.migrations import CreateSchema
 from config import DatabaseConnection, TwitterAuthenticate
 
-from modules.twitter.services import createTwitterAccountsService
+from modules.twitter.services import createTwitterAccountService
 from modules.epic_games.services import createGameService
+from modules.open_critic.services import createGameReviewService
 
 async def __main__():
   print('### CHOOSE ONE OPTION ###\n')
 
   option = input("1 - Create schema\n" +
-                "2 - Get games data\n" +
-                "3 - Get previews games\n" +
-                "4 - Get twitter users data\n\n")
+                 "2 - Request games data\n" +
+                 "3 - Request games reviews\n" +
+                 "4 - Request twitter users data\n\n")
 
   if option == "1":
     cursor, connection = await DatabaseConnection.execute()
@@ -25,11 +26,10 @@ async def __main__():
     await createGameService.execute()
 
   elif option == "3":
-    print('previews')
-    # await GetGamesData.execute()
+    await createGameReviewService.execute()
 
   elif option == "4":
-    await createTwitterAccountsService.execute(TwitterAuthenticate.headers)
+    await createTwitterAccountService.execute(TwitterAuthenticate.headers)
 
   else:
     print('Opção inválida!')
