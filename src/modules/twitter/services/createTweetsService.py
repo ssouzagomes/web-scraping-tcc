@@ -6,9 +6,9 @@ from modules.twitter.repositories import tweetRepository
 async def execute(twitterAccountIds, twitterAccountUsernames, headers):
   try:
     for index, twitterAccountId in enumerate(twitterAccountIds):
-      url = ("https://api.twitter.com/2/users/%s/tweets?max_results=100" % twitterAccountId +
+      url = ("https://api.twitter.com/2/users/%s/tweets?max_results=5" % twitterAccountId +
         "&expansions=attachments.media_keys" +
-        "&tweet.fields=public_metrics,created_at" +
+        "&tweet.fields=public_metrics,created_at,in_reply_to_user_id" +
         "&media.fields=media_key,preview_image_url,type,url")
 
       response = requests.get(url, headers=headers)

@@ -7,7 +7,7 @@ from shared.migrations import CreateSchema
 from config import DatabaseConnection, TwitterAuthenticate
 
 from modules.twitter.services import createTwitterAccountsService
-from modules.epic_games import getGames
+from modules.epic_games.services import createGameService
 
 async def __main__():
   print('### CHOOSE ONE OPTION ###\n')
@@ -22,7 +22,7 @@ async def __main__():
     await CreateSchema.execute(cursor, connection)
 
   elif option == "2":
-    await getGames.execute()
+    await createGameService.execute()
 
   elif option == "3":
     print('previews')
