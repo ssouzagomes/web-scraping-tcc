@@ -21,20 +21,6 @@ async def execute(formattedGame, addicionalGameInfo):
 
     await socialNetworksRepository.create(formattedGame, formattedSocialNetworks)
     
-    # specifications = addicionalGameInfo['requirements']['systems']
-
-    # print(json.dumps(specifications, indent=4))
-
-    # formattedSpecifications = []
-
-    # for specification in specifications:
-    #   if '_type' in specification:
-    #     del specification['_type']
-    #   formattedSpecifications.append(specification)
-
-    # print(json.dumps(formattedSpecifications, indent=4))
-
-
   except HTTPError as http_error:
     print('HTTP error occurred: %s' % http_error)
   except Exception as error:
