@@ -22,7 +22,7 @@ async def create(formattedGame, formattedSocialNetworks):
 
         connection.commit()
     
-    print("Social networks inserted successfully into social_networks table.\n")
+    print("Social networks inserted successfully into social_networks table.")
 
   except Exception as error:
     print('Internal error occurred: %s' %error)

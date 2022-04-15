@@ -3,19 +3,20 @@ from requests.models import HTTPError
 
 from modules.epic_games.repositories import gameRepository
 from modules.epic_games.services import createSocialNetworkService
-from modules.epic_games.services import createSpecificationsService
+from modules.epic_games.services import createNecessaryHardwareService
+
+# https://store-site-backend-static-ipv4.ak.epicgames.com/freeGamesPromotions?locale=pt-BR&country=BR&allowCountries=BR
 
 async def execute():
   try:
-    games_response = requests.get('https://www.epicgames.com/graphql?operationName=' +
+    games_response = requests.get('https://store.epicgames.com/graphql?operationName=' +
       'searchStoreQuery&variables={"allowCountries":"US",' +
       '"category":"games/edition/base|software/edition/base|editors|bundles/games",'+
-      '"count":1,"country":"US","locale":"en-US","releaseDate":"[,2022-02-19T17:50:56.950Z]",'+
+      '"count":5,"country":"US","locale":"en-US","releaseDate":"[,2022-04-11T17:50:56.950Z]",'+
       '"sortBy":"releaseDate","sortDir":"ASC"}&extensions={"persistedQuery":'+
-      '{"version":1,"sha256Hash":"6e7c4dd0177150eb9a47d624be221929582df8648e7ec271c821838ff4ee148e"}}')
+      '{"version":1,"sha256Hash":"4bebe12f9eab12438766fb5971b0bc54422ba81954539f294ec23b0a29ff92ad"}}')
 
     games_json = json.loads(games_response.text)
-    print(games_json)
 
     if 'game' in games_response.text:
       games = games_json['data']['Catalog']['searchStore']['elements']
@@ -27,47 +28,48 @@ async def execute():
 
         addicional_info_response = requests.get(addicional_info_url)
 
-        addicionalGameInfo = json.loads(addicional_info_response.text)['pages'][0]['data']
+        if 'pages' in json.loads(addicional_info_response.text):
+          addicionalGameInfo = json.loads(addicional_info_response.text)['pages'][0]['data']
 
-        platform = ''
-        description = ''
-        developer = ''
-        publisher = ''
-        genres = ''
+          platform = ''
+          description = ''
+          developer = ''
+          publisher = ''
+          genres = ''
 
-        if 'platform' in addicionalGameInfo['meta']:
-          platform = ','.join(addicionalGameInfo['meta']['platform'])
+          if 'platform' in addicionalGameInfo['meta']:
+            platform = ','.join(addicionalGameInfo['meta']['platform'])
 
-        if 'description' in game:
-          description = game['description']
+          if 'description' in game:
+            description = game['description']
 
-        if 'developer' in addicionalGameInfo['meta']:
-          developer = ','.join(addicionalGameInfo['meta']['developer'])
+          if 'developer' in addicionalGameInfo['meta']:
+            developer = ','.join(addicionalGameInfo['meta']['developer'])
 
-        if 'publisher' in addicionalGameInfo['meta']:
-          publisher = ','.join(addicionalGameInfo['meta']['publisher'])
+          if 'publisher' in addicionalGameInfo['meta']:
+            publisher = ','.join(addicionalGameInfo['meta']['publisher'])
 
-        if 'tags' in addicionalGameInfo['meta']:
-          genres = ','.join(addicionalGameInfo['meta']['tags'])
+          if 'tags' in addicionalGameInfo['meta']:
+            genres = ','.join(addicionalGameInfo['meta']['tags'])
 
-        formattedGame = {
-          'id': game['id'],
-          'name': game['title'],
-          'game_slug': gameSlug,
-          'price': game['currentPrice'],
-          'release_date': game['releaseDate'],
-          'platform': platform,
-          'description': description,
-          'developer': developer,
-          'publisher': publisher,
-          'genres': genres
-        }
+          formattedGame = {
+            'id': game['id'],
+            'name': game['title'],
+            'game_slug': gameSlug,
+            'price': game['currentPrice'],
+            'release_date': game['releaseDate'],
+            'platform': platform,
+            'description': description,
+            'developer': developer,
+            'publisher': publisher,
+            'genres': genres
+          }
 
-        await gameRepository.create(formattedGame)
+          await gameRepository.create(formattedGame)
 
-        await createSocialNetworkService.execute(formattedGame, addicionalGameInfo)
+          await createSocialNetworkService.execute(formattedGame, addicionalGameInfo)
 
-        await createSpecificationsService.execute(addicionalGameInfo)
+          await createNecessaryHardwareService.execute(addicionalGameInfo, gameSlug)
     else:
       print('\nUnable to recover game data. Try again!\n')
 

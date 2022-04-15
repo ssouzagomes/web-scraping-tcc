@@ -18,14 +18,13 @@ async def execute(cursor, connection):
   )
 
   cursor.execute(
-    """CREATE TABLE IF NOT EXISTS specifications (
+    """CREATE TABLE IF NOT EXISTS necessary_hardware (
       id uuid NOT NULL DEFAULT uuid_generate_v4(),
       operacional_system character varying NOT NULL,
       processor character varying NOT NULL,
       memory character varying,
       graphics character varying,
       storage character varying,
-      languages character varying,
       game_id character varying NOT NULL,
       created_at timestamp NOT NULL DEFAULT NOW(),
       updated_at timestamp NOT NULL DEFAULT NOW(),

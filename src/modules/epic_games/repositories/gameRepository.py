@@ -8,7 +8,8 @@ async def create(formattedGame):
       game_slug,
       price,
       release_date,
-      platform, description,
+      platform,
+      description,
       developer,
       publisher,
       genres
@@ -33,6 +34,6 @@ async def create(formattedGame):
 
     connection.commit()
 
-    print("\nGame inserted successfully into games table.\n")
+    print("\nGame inserted successfully into games table.")
   except Exception as error:
     print('Internal error occurred: %s' %error)

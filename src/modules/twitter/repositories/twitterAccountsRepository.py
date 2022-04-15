@@ -1,5 +1,4 @@
 from config import DatabaseConnection
-import json
 
 async def create(twitter_accounts):
   try:
