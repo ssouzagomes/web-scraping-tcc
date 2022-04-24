@@ -19,7 +19,7 @@ async def execute(cursor, connection):
 
   cursor.execute(
     """CREATE TABLE IF NOT EXISTS necessary_hardware (
-      id uuid NOT NULL DEFAULT uuid_generate_v4(),
+      id character varying UNIQUE NOT NULL,
       operacional_system character varying NOT NULL,
       processor character varying NOT NULL,
       memory character varying,
@@ -62,6 +62,7 @@ async def execute(cursor, connection):
       following INT NOT NULL,
       followers INT NOT NULL,
       game_id character varying NOT NULL,
+      twitter_account_id character varying NOT NULL,
       created_at timestamp NOT NULL DEFAULT NOW(),
       updated_at timestamp NOT NULL DEFAULT NOW(),
       PRIMARY KEY (id),

@@ -13,8 +13,9 @@ async def create(twitter_accounts):
       join_date,
       following,
       followers,
-      game_id
-    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING'''
+      game_id,
+      twitter_account_id
+    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING'''
 
     for twitter_account in twitter_accounts:
       http_url = 'http://twitter.com/' + twitter_account['username']
@@ -48,7 +49,8 @@ async def create(twitter_accounts):
           twitter_account['created_at'],
           twitter_account['public_metrics']['following_count'],
           twitter_account['public_metrics']['followers_count'],
-          game_id
+          game_id,
+          twitter_account['id']
         )
 
         cursor.execute(queryTwitterAccount, valuesTwitterAccount)
@@ -60,3 +62,20 @@ async def create(twitter_accounts):
     print("\nTwitter accounts inserted successfully into twitter_accounts table.\n")
   except Exception as error:
     print('Internal error occurred: %s' %error)
+
+async def findById(id):
+  try:
+    cursor, connection = await DatabaseConnection.execute()
+
+    query = "SELECT twitter_account_id FROM twitter_accounts ta WHERE ta.twitter_account_id = %s"
+
+    cursor.execute(query, (id,))
+
+    twitterAccount = cursor.fetchone()
+
+    connection.close()
+
+    return ''.join(twitterAccount)
+  except Exception as error:
+    print('Internal error occurred: %s' %error)
+

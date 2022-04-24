@@ -9,27 +9,38 @@ async def execute(headers):
   try:
     usernames = await socialNetworksRepository.getAllUsernames()
 
-    url = ("https://api.twitter.com/2/users/by?usernames=%s" % usernames +
-           "&user.fields=description,location,url,created_at,public_metrics,protected")
+    pagination_usernames = usernames[:100]
+    del usernames[:100]
 
-    response = requests.get(url, headers=headers)
+    pagination_usernames = ','.join(pagination_usernames)
 
-    if 'data' in json.loads(response.text):
-      twitterAccounts = json.loads(response.text)['data']
+    while len(pagination_usernames) > 0:
+      url = ("https://api.twitter.com/2/users/by?usernames=%s" % pagination_usernames +
+            "&user.fields=description,location,url,created_at,public_metrics,protected")
 
-      await twitterAccountsRepository.create(twitterAccounts)
+      response = requests.get(url, headers=headers)
 
-      twitterAccountIds = []
-      twitterAccountUsernames = []
+      if 'data' in json.loads(response.text):
+        twitterAccounts = json.loads(response.text)['data']
 
-      for twitterAccount in twitterAccounts:
-        if(twitterAccount['protected'] == False):
-          twitterAccountIds.append(twitterAccount['id'])
-          twitterAccountUsernames.append(twitterAccount['username'])
+        await twitterAccountsRepository.create(twitterAccounts)
 
-      await createTweetService.execute(twitterAccountIds, twitterAccountUsernames, headers)
-    else:
-      print("\nUnable to recover twitter accounts.\n")
+        twitterAccountIds = []
+        twitterAccountUsernames = []
+
+        for twitterAccount in twitterAccounts:
+          if(twitterAccount['protected'] == False):
+            twitterAccountIds.append(twitterAccount['id'])
+            twitterAccountUsernames.append(twitterAccount['username'])
+
+        await createTweetService.execute(twitterAccountIds, twitterAccountUsernames, headers)
+      else:
+        print("\nUnable to recover twitter accounts.\n")
+
+        pagination_usernames = usernames[:100]
+        del usernames[:100]
+
+        pagination_usernames = ','.join(pagination_usernames)
 
   except HTTPError as http_error:
     print('HTTP error occurred: %s' %http_error)

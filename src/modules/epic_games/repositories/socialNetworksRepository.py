@@ -43,10 +43,15 @@ async def getAllUsernames():
       username = ''.join(username)
       username = username.replace('https://twitter.com/', '')
       username = username.replace('http://twitter.com/', '')
+      username = username.replace('https://www.twitter.com/', '')
+      username = username.replace('http://www.twitter.com/', '')
+      username = username.replace('?lang=en', '')
       username = username.replace('/', '')
+      username = username.replace('https:', '')
+      username = username.replace('http:', '')
+      username = username.replace('.comtwitter', '')
+      username = username.replace(' ', '')
       formattedUsernames.append(username)
-
-    formattedUsernames = ','.join(formattedUsernames)
 
     connection.close()
 

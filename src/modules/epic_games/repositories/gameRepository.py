@@ -34,6 +34,6 @@ async def create(formattedGame):
 
     connection.commit()
 
-    print("\nGame inserted successfully into games table.")
+    print("\nGame %s inserted successfully into games table." %formattedGame['game_slug'])
   except Exception as error:
     print('Internal error occurred: %s' %error)
