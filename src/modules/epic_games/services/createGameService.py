@@ -13,21 +13,17 @@ async def execute():
     games_response = requests.get('https://store.epicgames.com/graphql?operationName=' +
       'searchStoreQuery&variables={"allowCountries":"US",' +
       '"category":"games/edition/base|software/edition/base|editors|bundles/games",'+
-      '"count":1000,"country":"US","locale":"en-US","releaseDate":"[,%sT17:50:56.950Z]",' %dateNow + 
-      '"sortBy":"releaseDate","sortDir":"DESC"}&extensions={"persistedQuery":'+
+      '"count":200,"country":"US","locale":"en-US","releaseDate":"[,%sT00:00:00.950Z]",' %dateNow + 
+      '"sortBy":"releaseDate","sortDir":"ASC"}&extensions={"persistedQuery":'+
       '{"version":1,"sha256Hash":"4bebe12f9eab12438766fb5971b0bc54422ba81954539f294ec23b0a29ff92ad"}}'
     )
 
     games_json = json.loads(games_response.text)
 
-    file = open("games.json","w")
-    file.write(games_response.text)
-    file.close()
-
     if 'game' in games_response.text:
       games = games_json['data']['Catalog']['searchStore']['elements']
 
-      print(len(games))
+      formattedGames = []
 
       for game in games:
         gameSlug = game['catalogNs']['mappings'][0]['pageSlug']
@@ -36,22 +32,28 @@ async def execute():
 
         addicional_info_response = requests.get(addicional_info_url)
 
-        file = open("specifications.json","w")
-        file.write(addicional_info_response.text)
-        file.close()
-
         platform = ''
         genres = ''
+        developer = ''
+        publisher = ''
 
-        if 'pages' in json.loads(addicional_info_response.text):
-          addicionalGameInfo = json.loads(addicional_info_response.text)['pages'][0]['data']
+        addicional_info_json = json.loads(addicional_info_response.text)
 
-          if 'data' in json.loads(addicional_info_response.text)['pages'][0]:
+        if 'pages' in addicional_info_json:
+          if 'data' in addicional_info_json['pages'][0]:
+            addicionalGameInfo = addicional_info_json['pages'][0]['data']
+
             if 'platform' in addicionalGameInfo['meta']:
               platform = ','.join(addicionalGameInfo['meta']['platform'])
 
             if 'tags' in addicionalGameInfo['meta']:
               genres = ','.join(addicionalGameInfo['meta']['tags'])
+
+            if 'developer' in addicionalGameInfo['meta']:
+              developer = ','.join(addicionalGameInfo['meta']['developer'])
+
+            if 'publisher' in addicionalGameInfo['meta']:
+              publisher = ','.join(addicionalGameInfo['meta']['publisher'])
 
             formattedGame = {
               'id': game['id'],
@@ -61,25 +63,47 @@ async def execute():
               'release_date': game['releaseDate'],
               'platform': platform,
               'description': game['description'],
-              'developer': game['developerDisplayName'],
-              'publisher': game['publisherDisplayName'],
+              'developer': developer,
+              'publisher': publisher,
               'genres': genres
             }
 
-            await gameRepository.create(formattedGame)
+            formattedGames.append(formattedGame)
 
-            await createSocialNetworkService.execute(formattedGame, addicionalGameInfo)
+            # await createSocialNetworkService.execute(formattedGame, addicionalGameInfo)
 
-            await createNecessaryHardwareService.execute(addicionalGameInfo, gameSlug)
+            # await createNecessaryHardwareService.execute(addicionalGameInfo, gameSlug)
+          elif 'data' in addicional_info_json['pages'][1]:
+            addicionalGameInfo = addicional_info_json[1]['data']
+
+            if 'platform' in addicionalGameInfo['meta']:
+              platform = ','.join(addicionalGameInfo['meta']['platform'])
+
+            if 'tags' in addicionalGameInfo['meta']:
+              genres = ','.join(addicionalGameInfo['meta']['tags'])
+
+            if 'developer' in addicionalGameInfo['meta']:
+              developer = ','.join(addicionalGameInfo['meta']['developer'])
+
+            if 'publisher' in addicionalGameInfo['meta']:
+              publisher = ','.join(addicionalGameInfo['meta']['publisher'])
+
+            formattedGame = {
+              'id': game['id'],
+              'name': game['title'],
+              'game_slug': gameSlug,
+              'price': game['currentPrice'],
+              'release_date': game['releaseDate'],
+              'platform': platform,
+              'description': game['description'],
+              'developer': developer,
+              'publisher': publisher,
+              'genres': genres
+            }
+
+            formattedGames.append(formattedGame)
+
         else:
-          addicional_info_url = "https://store.epicgames.com/pt-BR/p/"+gameSlug
-
-          addicional_info_response = requests.get(addicional_info_url)
-
-          file = open("specifications.html","w")
-          file.write(addicional_info_response.text)
-          file.close()
-
           formattedGame = {
             'id': game['id'],
             'name': game['title'],
@@ -93,10 +117,12 @@ async def execute():
             'genres': genres
           }
 
-          await gameRepository.create(formattedGame)
+          formattedGames.append(formattedGame)
+
+
+      await gameRepository.create(formattedGames)
     else:
       print('\nUnable to recover game data. Try again!\n')
-
           
   except HTTPError as http_error:
     print('HTTP error occurred: %s' %http_error)
