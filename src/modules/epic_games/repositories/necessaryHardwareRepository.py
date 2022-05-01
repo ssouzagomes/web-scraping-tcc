@@ -1,38 +1,20 @@
-import psycopg2
+import csv
 
-from config import DatabaseConnection
-
-async def create(hardware, minimum_recommended, game_slug):
+async def create(hardware, minimum_recommended, game_slug, necessary_hardware_writer):
   try:
+    csv_file = open('games.csv', 'r')
+    csv_reader = csv.DictReader(csv_file)
 
-    cursor, connection = await DatabaseConnection.execute()
+    game_id = ''
 
-    queryGameId = '''
-        SELECT id
-        FROM games g
-        WHERE g.game_slug = %s
-    '''
+    for line in csv_reader:
+      if line['game_slug'] == game_slug:
+        game_id = line['id']
 
-    cursor.execute(queryGameId, (game_slug,))
-
-    game_id = cursor.fetchone()
-
-    query = '''INSERT INTO necessary_hardware(
-      id,
-      operacional_system,
-      processor,
-      memory,
-      graphics,
-      storage,
-      game_id
-    ) VALUES (%s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING'''
-
-    game_id = ''.join(game_id)
-
-    hardware_id = game_id + minimum_recommended
+    id = game_id + minimum_recommended
 
     values = (
-      hardware_id,
+      id,
       hardware['operacional_system'],
       hardware['processor'],
       hardware['memory'],
@@ -41,13 +23,7 @@ async def create(hardware, minimum_recommended, game_slug):
       game_id
     )
 
-    cursor.execute(query, values)
+    necessary_hardware_writer.writerow(values)
 
-    connection.commit()  
-  except (Exception, psycopg2.Error) as error:
-    print("Error while fetching data from PostgreSQL", error)
-
-  finally:
-    if connection:
-      cursor.close()
-      connection.close()
+  except Exception as error:
+    print('Internal error occurred: %s' %error)

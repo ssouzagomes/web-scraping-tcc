@@ -30,7 +30,10 @@ async def execute(addicionalGameInfos):
 
     socialNetworks = []
 
+    id = 1000
+    
     if len(formattedSocialNetworks) > 0:
+
       for socialNetwork in formattedSocialNetworks:
         for key in socialNetwork:
 
@@ -43,11 +46,15 @@ async def execute(addicionalGameInfos):
             url = socialNetwork[key]
             fk_game_id = socialNetwork['fk_game_id']
 
+
           formattedSocialNetwork = {
+            'id': id,
             'description': description,
             'url': url,
             'fk_game_id': fk_game_id
           }
+
+          id += 1
 
           if formattedSocialNetwork['fk_game_id'] != '':
             socialNetworks.append(formattedSocialNetwork)

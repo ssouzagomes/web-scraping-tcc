@@ -1,4 +1,4 @@
-import requests, json
+import requests, json, csv
 from datetime import date
 from requests.models import HTTPError
 
@@ -10,10 +10,18 @@ async def execute():
   try:
     dateNow = date.today()
 
+    necessary_hardware_file = open('necessary_hardware.csv', 'w')
+    necessary_hardware_writer = csv.writer(necessary_hardware_file)
+    header_necessary_hardware_file = (
+      'id', 'operacional_system', 'processor', 'memory', 'graphics', 'fk_game_id'
+    )
+    necessary_hardware_writer.writerow(header_necessary_hardware_file)
+    
+
     games_response = requests.get('https://store.epicgames.com/graphql?operationName=' +
       'searchStoreQuery&variables={"allowCountries":"US",' +
       '"category":"games/edition/base|software/edition/base|editors|bundles/games",'+
-      '"count":10,"country":"US","locale":"en-US","releaseDate":"[,%sT00:00:00.950Z]",' %dateNow + 
+      '"count":200,"country":"US","locale":"en-US","releaseDate":"[,%sT00:00:00.950Z]",' %dateNow + 
       '"sortBy":"releaseDate","sortDir":"ASC"}&extensions={"persistedQuery":'+
       '{"version":1,"sha256Hash":"4bebe12f9eab12438766fb5971b0bc54422ba81954539f294ec23b0a29ff92ad"}}'
     )
@@ -77,7 +85,7 @@ async def execute():
             }
 
             formattedAddicionalGameInfos.append(formattedAddicionalGameInfo)
-            # await createNecessaryHardwareService.execute(addicionalGameInfo, gameSlug)
+            await createNecessaryHardwareService.execute(addicionalGameInfo, gameSlug, necessary_hardware_writer)
 
           elif 'data' in addicional_info_json['pages'][1]:
             addicionalGameInfo = addicional_info_json[1]['data']
@@ -115,8 +123,7 @@ async def execute():
             }
 
             formattedAddicionalGameInfos.append(formattedAddicionalGameInfo)
-
-            # await createNecessaryHardwareService.execute(addicionalGameInfo, gameSlug)
+            await createNecessaryHardwareService.execute(addicionalGameInfo, gameSlug, necessary_hardware_writer)
 
         else:
           formattedGame = {
@@ -136,6 +143,8 @@ async def execute():
 
       await gameRepository.create(formattedGames)
       await createSocialNetworkService.execute(formattedAddicionalGameInfos)
+
+      necessary_hardware_file.close()
     else:
       print('\nUnable to recover game data. Try again!\n')
           
