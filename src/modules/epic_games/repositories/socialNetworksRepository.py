@@ -1,4 +1,4 @@
-import csv, json
+import csv
 
 async def create(socialNetworks):
   try:
@@ -25,34 +25,32 @@ async def create(socialNetworks):
   except Exception as error:
     print('Internal error occurred: %s' %error)
 
-# async def getAllUsernames():
-#   try:
-#     cursor, connection = await DatabaseConnection.execute()
+async def getAllUsernames():
+  try:
+    csv_file = open('social_networks.csv', 'r')
+    csv_reader = csv.DictReader(csv_file)
 
-#     query = "SELECT url FROM social_networks sn WHERE sn.description = 'linkTwitter'"
+    formattedUsernames = []
+    usernames = []
 
-#     cursor.execute(query)
+    for line in csv_reader:
+      if line['description'] == 'linkTwitter':
+        usernames.append(line['url'])
 
-#     usernames = cursor.fetchall()
+    for username in usernames:
+      username = ''.join(username)
+      username = username.replace('https://twitter.com/', '')
+      username = username.replace('http://twitter.com/', '')
+      username = username.replace('https://www.twitter.com/', '')
+      username = username.replace('http://www.twitter.com/', '')
+      username = username.replace('?lang=en', '')
+      username = username.replace('/', '')
+      username = username.replace('https:', '')
+      username = username.replace('http:', '')
+      username = username.replace('.comtwitter', '')
+      username = username.replace(' ', '')
+      formattedUsernames.append(username)
 
-#     formattedUsernames = []
-
-#     for username in usernames:
-#       username = ''.join(username)
-#       username = username.replace('https://twitter.com/', '')
-#       username = username.replace('http://twitter.com/', '')
-#       username = username.replace('https://www.twitter.com/', '')
-#       username = username.replace('http://www.twitter.com/', '')
-#       username = username.replace('?lang=en', '')
-#       username = username.replace('/', '')
-#       username = username.replace('https:', '')
-#       username = username.replace('http:', '')
-#       username = username.replace('.comtwitter', '')
-#       username = username.replace(' ', '')
-#       formattedUsernames.append(username)
-
-#     connection.close()
-
-#     return formattedUsernames
-#   except Exception as error:
-#     print('Internal error occurred: %s' %error)
+    return formattedUsernames
+  except Exception as error:
+    print('Internal error occurred: %s' %error)

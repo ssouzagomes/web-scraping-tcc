@@ -21,7 +21,7 @@ async def execute():
     games_response = requests.get('https://store.epicgames.com/graphql?operationName=' +
       'searchStoreQuery&variables={"allowCountries":"US",' +
       '"category":"games/edition/base|software/edition/base|editors|bundles/games",'+
-      '"count":200,"country":"US","locale":"en-US","releaseDate":"[,%sT00:00:00.950Z]",' %dateNow + 
+      '"count":10,"country":"US","locale":"en-US","releaseDate":"[,%sT00:00:00.950Z]",' %dateNow + 
       '"sortBy":"releaseDate","sortDir":"ASC"}&extensions={"persistedQuery":'+
       '{"version":1,"sha256Hash":"4bebe12f9eab12438766fb5971b0bc54422ba81954539f294ec23b0a29ff92ad"}}'
     )
@@ -33,9 +33,14 @@ async def execute():
 
       formattedGames = []
       formattedAddicionalGameInfos = []
+      addicionalGameInfos = []
+      gameSlugs = []
 
       for game in games:
         gameSlug = game['catalogNs']['mappings'][0]['pageSlug']
+        print(gameSlug)
+
+        gameSlugs.append(gameSlug)
 
         addicional_info_url = "https://store-content-ipv4.ak.epicgames.com/api/en-US/content/products/"+gameSlug
 
@@ -85,7 +90,7 @@ async def execute():
             }
 
             formattedAddicionalGameInfos.append(formattedAddicionalGameInfo)
-            await createNecessaryHardwareService.execute(addicionalGameInfo, gameSlug, necessary_hardware_writer)
+            addicionalGameInfos.append(addicionalGameInfo)
 
           elif 'data' in addicional_info_json['pages'][1]:
             addicionalGameInfo = addicional_info_json[1]['data']
@@ -123,7 +128,7 @@ async def execute():
             }
 
             formattedAddicionalGameInfos.append(formattedAddicionalGameInfo)
-            await createNecessaryHardwareService.execute(addicionalGameInfo, gameSlug, necessary_hardware_writer)
+            addicionalGameInfos.append(addicionalGameInfo)
 
         else:
           formattedGame = {
@@ -143,6 +148,7 @@ async def execute():
 
       await gameRepository.create(formattedGames)
       await createSocialNetworkService.execute(formattedAddicionalGameInfos)
+      await createNecessaryHardwareService.execute(addicionalGameInfos, gameSlugs, necessary_hardware_writer)
 
       necessary_hardware_file.close()
     else:

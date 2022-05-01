@@ -1,46 +1,39 @@
-from config import DatabaseConnection
+import csv, json
 
-async def create(twitter_accounts):
+async def create(twitter_accounts, twitter_accounts_writer):
   try:
-    cursor, connection = await DatabaseConnection.execute()
-
-    queryTwitterAccount = '''INSERT INTO twitter_accounts (
-      name,
-      username,
-      bio,
-      location,
-      website,
-      join_date,
-      following,
-      followers,
-      game_id,
-      twitter_account_id
-    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING'''
-
     for twitter_account in twitter_accounts:
-      http_url = 'http://twitter.com/' + twitter_account['username']
-      https_url = 'https://twitter.com/' + twitter_account['username']
+      http_url = 'http://twitter.com/' + twitter_account['username'].lower()
+      https_url = 'https://twitter.com/' + twitter_account['username'].lower()
+      https_url_www = 'http://www.twitter.com/' + twitter_account['username'].lower()
+      http_url_www = 'https://www.twitter.com/' + twitter_account['username'].lower()
 
-      queryGameId = '''
-        SELECT game_id
-        FROM social_networks sn
-        WHERE sn.url = %s or sn.url = %s
-      '''
+      print(twitter_account['username'])
 
-      valuesGameId = (http_url, https_url)
+      game_id = None
 
-      cursor.execute(queryGameId, valuesGameId)
+      csv_file = open('social_networks.csv', 'r')
+      csv_reader = csv.DictReader(csv_file)
 
-      game_id = cursor.fetchone()
+      for line in csv_reader:
+        if (
+            line['url'].lower() == http_url or
+            line['url'].lower() == https_url or
+            line['url'].lower() == https_url_www or
+            line['url'].lower() == http_url_www
+          ):
+          game_id = line['fk_game_id']
+
+      # print(game_id)
 
       if game_id != None:
-        game_id = ''.join(game_id)
-
         location = ''
+
         if 'location' in twitter_account:
           location = twitter_account['location']
 
-        valuesTwitterAccount = (
+        values = (
+          twitter_account['id'],
           twitter_account['name'],
           twitter_account['username'],
           twitter_account['description'],
@@ -49,33 +42,31 @@ async def create(twitter_accounts):
           twitter_account['created_at'],
           twitter_account['public_metrics']['following_count'],
           twitter_account['public_metrics']['followers_count'],
-          game_id,
-          twitter_account['id']
+          game_id
         )
 
-        cursor.execute(queryTwitterAccount, valuesTwitterAccount)
+        # print(json.dumps(values, indent=2))
 
-        connection.commit()
 
-    connection.close()
+        twitter_accounts_writer.writerow(values)
 
     print("\nTwitter accounts inserted successfully into twitter_accounts table.\n")
   except Exception as error:
     print('Internal error occurred: %s' %error)
 
-async def findById(id):
-  try:
-    cursor, connection = await DatabaseConnection.execute()
+# async def findById(id):
+#   try:
+#     cursor, connection = await DatabaseConnection.execute()
 
-    query = "SELECT twitter_account_id FROM twitter_accounts ta WHERE ta.twitter_account_id = %s"
+#     query = "SELECT twitter_account_id FROM twitter_accounts ta WHERE ta.twitter_account_id = %s"
 
-    cursor.execute(query, (id,))
+#     cursor.execute(query, (id,))
 
-    twitterAccount = cursor.fetchone()
+#     twitterAccount = cursor.fetchone()
 
-    connection.close()
+#     connection.close()
 
-    return ''.join(twitterAccount)
-  except Exception as error:
-    print('Internal error occurred: %s' %error)
+#     return ''.join(twitterAccount)
+#   except Exception as error:
+#     print('Internal error occurred: %s' %error)
 
