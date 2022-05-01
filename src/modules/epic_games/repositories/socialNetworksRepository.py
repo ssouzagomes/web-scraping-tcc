@@ -1,60 +1,58 @@
-from config import DatabaseConnection
+import csv, json
 
-async def create(formattedGame, formattedSocialNetworks):
+async def create(socialNetworks):
   try:
-    cursor, connection = await DatabaseConnection.execute()
-
-    insertInSocialNetworkQuery = '''INSERT INTO social_networks(
-      description,
-      url,
-      game_id
-    ) VALUES (%s, %s, %s) ON CONFLICT DO NOTHING'''
-
-    if len(formattedSocialNetworks) > 0:
-      for description in formattedSocialNetworks:
-        valuesSocialNetoworks = (
-          description,
-          formattedSocialNetworks[description],
-          formattedGame['id']
-        )
-
-        cursor.execute(insertInSocialNetworkQuery, valuesSocialNetoworks)
-
-        connection.commit()
+    data_file = open('social_networks.csv', 'w')
+        
+    csv_writer = csv.writer(data_file)
     
-    print("Social networks inserted successfully into social_networks table.")
+    count = 0
+
+    for socialNetwork in socialNetworks:
+      if count == 0:
+
+        header = socialNetwork.keys()
+        csv_writer.writerow(header)
+        count += 1
+  
+      values = socialNetwork.values()
+      csv_writer.writerow(values)
+    
+    data_file.close()
+    
+    print("Social networks saved successfully into social_networks.csv file.")
 
   except Exception as error:
     print('Internal error occurred: %s' %error)
 
-async def getAllUsernames():
-  try:
-    cursor, connection = await DatabaseConnection.execute()
+# async def getAllUsernames():
+#   try:
+#     cursor, connection = await DatabaseConnection.execute()
 
-    query = "SELECT url FROM social_networks sn WHERE sn.description = 'linkTwitter'"
+#     query = "SELECT url FROM social_networks sn WHERE sn.description = 'linkTwitter'"
 
-    cursor.execute(query)
+#     cursor.execute(query)
 
-    usernames = cursor.fetchall()
+#     usernames = cursor.fetchall()
 
-    formattedUsernames = []
+#     formattedUsernames = []
 
-    for username in usernames:
-      username = ''.join(username)
-      username = username.replace('https://twitter.com/', '')
-      username = username.replace('http://twitter.com/', '')
-      username = username.replace('https://www.twitter.com/', '')
-      username = username.replace('http://www.twitter.com/', '')
-      username = username.replace('?lang=en', '')
-      username = username.replace('/', '')
-      username = username.replace('https:', '')
-      username = username.replace('http:', '')
-      username = username.replace('.comtwitter', '')
-      username = username.replace(' ', '')
-      formattedUsernames.append(username)
+#     for username in usernames:
+#       username = ''.join(username)
+#       username = username.replace('https://twitter.com/', '')
+#       username = username.replace('http://twitter.com/', '')
+#       username = username.replace('https://www.twitter.com/', '')
+#       username = username.replace('http://www.twitter.com/', '')
+#       username = username.replace('?lang=en', '')
+#       username = username.replace('/', '')
+#       username = username.replace('https:', '')
+#       username = username.replace('http:', '')
+#       username = username.replace('.comtwitter', '')
+#       username = username.replace(' ', '')
+#       formattedUsernames.append(username)
 
-    connection.close()
+#     connection.close()
 
-    return formattedUsernames
-  except Exception as error:
-    print('Internal error occurred: %s' %error)
+#     return formattedUsernames
+#   except Exception as error:
+#     print('Internal error occurred: %s' %error)

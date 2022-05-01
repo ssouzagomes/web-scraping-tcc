@@ -1,5 +1,4 @@
 import csv
-import json
 
 async def create(formattedGames):
   try:

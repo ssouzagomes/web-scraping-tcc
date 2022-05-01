@@ -13,7 +13,7 @@ async def execute():
     games_response = requests.get('https://store.epicgames.com/graphql?operationName=' +
       'searchStoreQuery&variables={"allowCountries":"US",' +
       '"category":"games/edition/base|software/edition/base|editors|bundles/games",'+
-      '"count":200,"country":"US","locale":"en-US","releaseDate":"[,%sT00:00:00.950Z]",' %dateNow + 
+      '"count":10,"country":"US","locale":"en-US","releaseDate":"[,%sT00:00:00.950Z]",' %dateNow + 
       '"sortBy":"releaseDate","sortDir":"ASC"}&extensions={"persistedQuery":'+
       '{"version":1,"sha256Hash":"4bebe12f9eab12438766fb5971b0bc54422ba81954539f294ec23b0a29ff92ad"}}'
     )
@@ -24,6 +24,7 @@ async def execute():
       games = games_json['data']['Catalog']['searchStore']['elements']
 
       formattedGames = []
+      formattedAddicionalGameInfos = []
 
       for game in games:
         gameSlug = game['catalogNs']['mappings'][0]['pageSlug']
@@ -70,9 +71,14 @@ async def execute():
 
             formattedGames.append(formattedGame)
 
-            # await createSocialNetworkService.execute(formattedGame, addicionalGameInfo)
+            formattedAddicionalGameInfo = {
+              'socialNetworks': addicionalGameInfo['socialLinks'],
+              'gameId': formattedGame['id']
+            }
 
+            formattedAddicionalGameInfos.append(formattedAddicionalGameInfo)
             # await createNecessaryHardwareService.execute(addicionalGameInfo, gameSlug)
+
           elif 'data' in addicional_info_json['pages'][1]:
             addicionalGameInfo = addicional_info_json[1]['data']
 
@@ -103,6 +109,15 @@ async def execute():
 
             formattedGames.append(formattedGame)
 
+            formattedAddicionalGameInfo = {
+              'socialNetworks': addicionalGameInfo['socialLinks'],
+              'gameId': formattedGame['id']
+            }
+
+            formattedAddicionalGameInfos.append(formattedAddicionalGameInfo)
+
+            # await createNecessaryHardwareService.execute(addicionalGameInfo, gameSlug)
+
         else:
           formattedGame = {
             'id': game['id'],
@@ -119,8 +134,8 @@ async def execute():
 
           formattedGames.append(formattedGame)
 
-
       await gameRepository.create(formattedGames)
+      await createSocialNetworkService.execute(formattedAddicionalGameInfos)
     else:
       print('\nUnable to recover game data. Try again!\n')
           

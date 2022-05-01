@@ -2,24 +2,57 @@ from requests.models import HTTPError
 
 from modules.epic_games.repositories import socialNetworksRepository
 
-async def execute(formattedGame, addicionalGameInfo):
+async def execute(addicionalGameInfos):
   try:
-    socialNetworks = addicionalGameInfo['socialLinks']
+    formattedSocialNetworks = []
 
-    if '_type' in socialNetworks:
-      del socialNetworks['_type']
-    if 'title' in socialNetworks:
-      del socialNetworks['title']
-    if 'linkHomepage' in socialNetworks:
-      del socialNetworks['linkHomepage']
+    for addicionalGameInfo in addicionalGameInfos:
+      socialNetworks = addicionalGameInfo['socialNetworks']
+      gameId = addicionalGameInfo['gameId']
 
-    formattedSocialNetworks = {}
+      if '_type' in socialNetworks:
+        del socialNetworks['_type']
+      if 'title' in socialNetworks:
+        del socialNetworks['title']
+      if 'linkHomepage' in socialNetworks:
+        del socialNetworks['linkHomepage']
 
-    for key in socialNetworks:
-      if socialNetworks[key] != '':
-        formattedSocialNetworks[key] = socialNetworks[key]
+      formattedSocialNetwork = {
+        'fk_game_id': gameId
+      }
 
-    await socialNetworksRepository.create(formattedGame, formattedSocialNetworks)
+      for key in socialNetworks:
+        if socialNetworks[key] != '':
+          formattedSocialNetwork[key] = socialNetworks[key]
+
+      if len(formattedSocialNetwork) > 1:
+        formattedSocialNetworks.append(formattedSocialNetwork)   
+
+    socialNetworks = []
+
+    if len(formattedSocialNetworks) > 0:
+      for socialNetwork in formattedSocialNetworks:
+        for key in socialNetwork:
+
+          url = ''
+          fk_game_id = ''
+          description = ''
+          
+          if key != 'fk_game_id':
+            description = key
+            url = socialNetwork[key]
+            fk_game_id = socialNetwork['fk_game_id']
+
+          formattedSocialNetwork = {
+            'description': description,
+            'url': url,
+            'fk_game_id': fk_game_id
+          }
+
+          if formattedSocialNetwork['fk_game_id'] != '':
+            socialNetworks.append(formattedSocialNetwork)
+
+    await socialNetworksRepository.create(socialNetworks)
     
   except HTTPError as http_error:
     print('HTTP error occurred: %s' % http_error)
