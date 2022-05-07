@@ -1,37 +1,7 @@
-import json
-
-from config import DatabaseConnection
-
-async def create(tweet, username):
+async def create(tweet, tweets_accounts_writer):
   try:
-    cursor, connection = await DatabaseConnection.execute()
-
-    getUserIdQuery = """
-      SELECT id
-      FROM twitter_accounts ta
-      WHERE ta.username = '{0}'
-    """.format(username)
-
-    cursor.execute(getUserIdQuery)
-
-    twitterAccountId = cursor.fetchone()
-
-    # print(twitterAccountId)
-    # print(json.dumps(tweet, indent=4))
-    # print('\n')
-    
-    query = """INSERT INTO tweets (
-      text,
-      url_media,
-      quantity_likes,
-      quantity_retweets,
-      quantity_quotes,
-      quantity_replys,
-      timestamp,
-      twitter_account_id
-    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s) ON CONFLICT DO NOTHING"""
-
     values = (
+      tweet['id'],
       tweet['text'],
       tweet['url_media'],
       tweet['quantity_likes'],
@@ -39,13 +9,10 @@ async def create(tweet, username):
       tweet['quantity_quotes'],
       tweet['quantity_replys'],
       tweet['timestamp'],
-      ''.join(twitterAccountId)
+      tweet['twitter_account_id']
     )
 
-    cursor.execute(query, values)
+    tweets_accounts_writer.writerow(values)
 
-    connection.commit()
-
-    connection.close()
   except Exception as error:
     print('Internal error occurred: %s' %error)

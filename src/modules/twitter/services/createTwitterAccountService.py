@@ -23,9 +23,6 @@ async def execute(headers):
       pagination_usernames = usernames[:100]
       del usernames[:100]
 
-    print(pagination_usernames)
-    print(usernames)
-
     while len(pagination_usernames) > 0:
       formatUsernames = ','.join(pagination_usernames)
 
@@ -42,12 +39,12 @@ async def execute(headers):
         twitterAccountIds = []
         twitterAccountUsernames = []
 
-        # for twitterAccount in twitterAccounts:
-        #   if(twitterAccount['protected'] == False):
-        #     twitterAccountIds.append(twitterAccount['id'])
-        #     twitterAccountUsernames.append(twitterAccount['username'])
+        for twitterAccount in twitterAccounts:
+          if(twitterAccount['protected'] == False):
+            twitterAccountIds.append(twitterAccount['id'])
+            twitterAccountUsernames.append(twitterAccount['username'])
 
-        # await createTweetService.execute(twitterAccountIds, twitterAccountUsernames, headers)
+        await createTweetService.execute(twitterAccountIds, headers)
 
       else:
         print("\nUnable to recover twitter accounts.\n")
@@ -65,9 +62,6 @@ async def execute(headers):
       else:
         pagination_usernames = usernames[:100]
         del usernames[:100]
-
-      print(len(pagination_usernames))
-      print(len(usernames))
       
     twitter_accounts_file.close()
 

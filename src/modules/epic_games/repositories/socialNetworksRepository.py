@@ -51,6 +51,8 @@ async def getAllUsernames():
       username = username.replace(' ', '')
       formattedUsernames.append(username)
 
+    csv_file.close()
+
     return formattedUsernames
   except Exception as error:
     print('Internal error occurred: %s' %error)

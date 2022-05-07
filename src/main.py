@@ -13,25 +13,24 @@ from modules.open_critic.services import createGameReviewService
 async def __main__():
   print('### CHOOSE ONE OPTION ###\n')
 
-  option = input("1 - Create schema\n" +
-                 "2 - Request games data\n" +
-                 "3 - Request games reviews\n" +
-                 "4 - Request twitter users data\n\n")
+  option = input("1 - Request games data\n" +
+                 "2 - Request games reviews\n" +
+                 "3 - Request twitter users data\n\n")
+
+  # if option == "1":
+  #   cursor, connection = await DatabaseConnection.execute()
+  #   await CreateSchema.execute(cursor, connection)
 
   if option == "1":
-    cursor, connection = await DatabaseConnection.execute()
-    await CreateSchema.execute(cursor, connection)
-
-  elif option == "2":
     await createGameService.execute()
 
-  elif option == "3":
+  elif option == "2":
     await createGameReviewService.execute()
 
-  elif option == "4":
+  elif option == "3":
     await createTwitterAccountService.execute(TwitterAuthenticate.headers)
 
   else:
-    print('Opção inválida!')
+    print('Invalid option!')
 
 asyncio.run(__main__())

@@ -1,4 +1,4 @@
-import csv, json
+import csv
 
 async def create(twitter_accounts, twitter_accounts_writer):
   try:
@@ -7,8 +7,6 @@ async def create(twitter_accounts, twitter_accounts_writer):
       https_url = 'https://twitter.com/' + twitter_account['username'].lower()
       https_url_www = 'http://www.twitter.com/' + twitter_account['username'].lower()
       http_url_www = 'https://www.twitter.com/' + twitter_account['username'].lower()
-
-      print(twitter_account['username'])
 
       game_id = None
 
@@ -23,8 +21,6 @@ async def create(twitter_accounts, twitter_accounts_writer):
             line['url'].lower() == http_url_www
           ):
           game_id = line['fk_game_id']
-
-      # print(game_id)
 
       if game_id != None:
         location = ''
@@ -45,28 +41,27 @@ async def create(twitter_accounts, twitter_accounts_writer):
           game_id
         )
 
-        # print(json.dumps(values, indent=2))
-
-
         twitter_accounts_writer.writerow(values)
 
-    print("\nTwitter accounts inserted successfully into twitter_accounts table.\n")
+      csv_file.close()
+
+    print("\nTwitter accounts saved successfully into twitter_accounts.csv file.\n")
   except Exception as error:
     print('Internal error occurred: %s' %error)
 
-# async def findById(id):
-#   try:
-#     cursor, connection = await DatabaseConnection.execute()
+async def findById(id):
+  try:
+    csv_file = open('twitter_accounts.csv', 'r')
+    csv_reader = csv.DictReader(csv_file)
 
-#     query = "SELECT twitter_account_id FROM twitter_accounts ta WHERE ta.twitter_account_id = %s"
+    twitterAccount = ''
 
-#     cursor.execute(query, (id,))
+    for line in csv_reader:
+      print('oi')
+      if line['id'] == id:
+        print(line['id'])
 
-#     twitterAccount = cursor.fetchone()
+    csv_file.close()
 
-#     connection.close()
-
-#     return ''.join(twitterAccount)
-#   except Exception as error:
-#     print('Internal error occurred: %s' %error)
-
+  except Exception as error:
+    print('Internal error occurred: %s' %error)

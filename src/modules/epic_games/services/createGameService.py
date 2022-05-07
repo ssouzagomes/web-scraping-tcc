@@ -38,7 +38,6 @@ async def execute():
 
       for game in games:
         gameSlug = game['catalogNs']['mappings'][0]['pageSlug']
-        print(gameSlug)
 
         gameSlugs.append(gameSlug)
 
