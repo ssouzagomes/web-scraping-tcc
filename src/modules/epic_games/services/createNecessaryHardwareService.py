@@ -1,12 +1,14 @@
 from modules.epic_games.repositories import necessaryHardwareRepository
 
-async def execute(addicional_game_infos, game_slugs, necessary_hardware_writer):
+async def execute(addicional_game_infos, game_ids, necessary_hardware_writer):
   try:
+    print('slugs: {}'.format(len(game_ids)))
+    print('addicional_game_infos: {}'.format(len(addicional_game_infos)))
     for index, addicional_game_info in enumerate(addicional_game_infos):
       if 'requirements' in addicional_game_info:
         if 'systems' in addicional_game_info['requirements']:
           if 'details' in addicional_game_info['requirements']['systems'][0]:
-            game_slug = game_slugs[index]
+            game_id = game_ids[index]
             
             specifications = addicional_game_info['requirements']['systems'][0]['details']
 
@@ -22,8 +24,12 @@ async def execute(addicional_game_infos, game_slugs, necessary_hardware_writer):
             graphics_recommended = ''
             storage_recommended = ''
 
-            if 'minimum' in specifications[0]:
-              for specification in specifications:
+            hasMinimum = False
+            hasRecommended = False
+
+            for specification in specifications:
+              if 'minimum' in specification:
+                hasMinimum = True
                 if specification['title'] == 'OS':
                   operacional_system_minimum = specification['minimum']
                 if specification['title'] == 'Processor' or specification['title'] == 'CPU':
@@ -35,8 +41,9 @@ async def execute(addicional_game_infos, game_slugs, necessary_hardware_writer):
                 if specification['title'] == 'Storage' or specification['title'] == 'HDD':
                   storage_minimum = specification['minimum']
 
-            if 'recommended' in specifications[0]:
-              for specification in specifications:
+            for specification in specifications:
+              if 'recommended' in specification:
+                hasRecommended = True
                 if specification['title'] == 'OS':
                   operacional_system_recommended = specification['recommended']
                 if specification['title'] == 'Processor' or specification['title'] == 'CPU':
@@ -48,7 +55,7 @@ async def execute(addicional_game_infos, game_slugs, necessary_hardware_writer):
                 if specification['title'] == 'Storage' or specification['title'] == 'HDD':
                   storage_recommended = specification['recommended']
 
-            if 'minimum' in specifications[0]:
+            if hasMinimum:
               minimum_formatted = {
                 'operacional_system': operacional_system_minimum,
                 'processor': processor_minimum,
@@ -59,9 +66,9 @@ async def execute(addicional_game_infos, game_slugs, necessary_hardware_writer):
 
               minimum = '1'
 
-              await necessaryHardwareRepository.create(minimum_formatted, minimum, game_slug, necessary_hardware_writer)
+              await necessaryHardwareRepository.create(minimum_formatted, minimum, game_id, necessary_hardware_writer)
 
-            if 'recommended' in specifications[0]:
+            if hasRecommended:
               recommended_formatted = {
                 'operacional_system': operacional_system_recommended,
                 'processor': processor_recommended,
@@ -72,7 +79,7 @@ async def execute(addicional_game_infos, game_slugs, necessary_hardware_writer):
 
               recommended = '2'
 
-              await necessaryHardwareRepository.create(recommended_formatted, recommended, game_slug, necessary_hardware_writer)
+              await necessaryHardwareRepository.create(recommended_formatted, recommended, game_id, necessary_hardware_writer)
               
           print("Necessary hardware saved successfully into necessary_hardware.csv file.\n")
 

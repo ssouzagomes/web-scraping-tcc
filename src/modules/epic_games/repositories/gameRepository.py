@@ -1,27 +1,23 @@
-import csv
-
-async def create(formattedGames):
+async def create(formattedGames, games_writer):
   try:
     games = formattedGames
 
-    data_file = open('games.csv', 'w')
-    
-    csv_writer = csv.writer(data_file)
-    
-    count = 0
-    
     for game in games:
-      if count == 0:
-  
-        header = game.keys()
-        csv_writer.writerow(header)
-        count += 1
-  
-      values = game.values()
-      csv_writer.writerow(values)
+      values = (
+        game['id'],
+        game['name'],
+        game['game_slug'],
+        game['price'],
+        game['release_date'],
+        game['platform'],
+        game['description'],
+        game['developer'],
+        game['publisher'],
+        game['genres']
+      )
+     
+      games_writer.writerow(values)
     
-    data_file.close()
-
     print("\nGames saved successfully into games.csv file.")
   except Exception as error:
     print('Internal error occurred: %s' %error)

@@ -33,7 +33,6 @@ async def execute(addicionalGameInfos):
     id = 1000
     
     if len(formattedSocialNetworks) > 0:
-
       for socialNetwork in formattedSocialNetworks:
         for key in socialNetwork:
 
