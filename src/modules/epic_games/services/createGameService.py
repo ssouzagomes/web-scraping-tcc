@@ -21,12 +21,16 @@ async def execute():
     games_response = requests.get('https://store.epicgames.com/graphql?operationName=' +
       'searchStoreQuery&variables={"allowCountries":"US",' +
       '"category":"games/edition/base|software/edition/base|editors|bundles/games",'+
-      '"count":10,"country":"US","locale":"en-US","releaseDate":"[,%sT00:00:00.950Z]",' %dateNow + 
+      '"count":199,"country":"US","locale":"en-US","releaseDate":"[,%sT00:00:00.950Z]",' %dateNow + 
       '"sortBy":"releaseDate","sortDir":"ASC"}&extensions={"persistedQuery":'+
       '{"version":1,"sha256Hash":"4bebe12f9eab12438766fb5971b0bc54422ba81954539f294ec23b0a29ff92ad"}}'
     )
 
     games_json = json.loads(games_response.text)
+
+    file = open("games.json","w")
+    file.write(games_response.text),
+    file.close()
 
     if 'game' in games_response.text:
       games = games_json['data']['Catalog']['searchStore']['elements']
@@ -51,6 +55,10 @@ async def execute():
         publisher = ''
 
         addicional_info_json = json.loads(addicional_info_response.text)
+
+        file = open("addicional.json","w")
+        file.write(addicional_info_response.text),
+        file.close()
 
         if 'pages' in addicional_info_json:
           if 'data' in addicional_info_json['pages'][0]:

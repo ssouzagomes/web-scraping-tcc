@@ -74,7 +74,7 @@ async def execute(addicional_game_infos, game_slugs, necessary_hardware_writer):
 
               await necessaryHardwareRepository.create(recommended_formatted, recommended, game_slug, necessary_hardware_writer)
               
-          print("Necessary saved successfully into necessary_hardware.csv file.\n")
+          print("Necessary hardware saved successfully into necessary_hardware.csv file.\n")
 
 
   except Exception as error:

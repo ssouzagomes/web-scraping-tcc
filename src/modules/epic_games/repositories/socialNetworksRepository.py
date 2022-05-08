@@ -33,9 +33,9 @@ async def getAllUsernames():
     formattedUsernames = []
     usernames = []
 
-    for line in csv_reader:
-      if line['description'] == 'linkTwitter':
-        usernames.append(line['url'])
+    for row in csv_reader:
+      if row['description'] == 'linkTwitter':
+        usernames.append(row['url'])
 
     for username in usernames:
       username = ''.join(username)

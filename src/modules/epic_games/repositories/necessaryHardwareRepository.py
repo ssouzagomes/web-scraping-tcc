@@ -7,9 +7,9 @@ async def create(hardware, minimum_recommended, game_slug, necessary_hardware_wr
 
     game_id = ''
 
-    for line in csv_reader:
-      if line['game_slug'] == game_slug:
-        game_id = line['id']
+    for row in csv_reader:
+      if row['game_slug'] == game_slug:
+        game_id = row['id']
 
     id = game_id + minimum_recommended
 

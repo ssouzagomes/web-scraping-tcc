@@ -13,14 +13,14 @@ async def create(twitter_accounts, twitter_accounts_writer):
       csv_file = open('social_networks.csv', 'r')
       csv_reader = csv.DictReader(csv_file)
 
-      for line in csv_reader:
+      for row in csv_reader:
         if (
-            line['url'].lower() == http_url or
-            line['url'].lower() == https_url or
-            line['url'].lower() == https_url_www or
-            line['url'].lower() == http_url_www
+            row['url'].lower() == http_url or
+            row['url'].lower() == https_url or
+            row['url'].lower() == https_url_www or
+            row['url'].lower() == http_url_www
           ):
-          game_id = line['fk_game_id']
+          game_id = row['fk_game_id']
 
       if game_id != None:
         location = ''
@@ -56,10 +56,10 @@ async def findById(id):
 
     twitterAccount = ''
 
-    for line in csv_reader:
+    for row in csv_reader:
       print('oi')
-      if line['id'] == id:
-        print(line['id'])
+      if row['id'] == id:
+        print(row['id'])
 
     csv_file.close()
 
