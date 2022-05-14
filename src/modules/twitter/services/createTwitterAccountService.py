@@ -16,7 +16,7 @@ async def execute(headers):
 
     usernames = await socialNetworksRepository.getAllUsernames()
 
-    if len(usernames) > 0 and len(usernames) < 100:
+    if len(usernames) > 0 and len(usernames) <= 100:
       pagination_usernames = usernames
       usernames = []
     else:
@@ -24,9 +24,9 @@ async def execute(headers):
       del usernames[:100]
 
     while len(pagination_usernames) > 0:
-      formatUsernames = ','.join(pagination_usernames)
-
-      url = ("https://api.twitter.com/2/users/by?usernames=%s" % formatUsernames +
+      formattedUsernames = ','.join(pagination_usernames)
+      
+      url = ("https://api.twitter.com/2/users/by?usernames=%s" % formattedUsernames +
             "&user.fields=description,location,url,created_at,public_metrics,protected")
 
       response = requests.get(url, headers=headers)
@@ -46,6 +46,13 @@ async def execute(headers):
 
         await createTweetService.execute(twitterAccountIds, headers)
 
+        if len(usernames) > 0 and len(usernames) < 100:
+          pagination_usernames = usernames
+          usernames = []
+        else:
+          pagination_usernames = usernames[:100]
+          del usernames[:100]
+
       else:
         print("\nUnable to recover twitter accounts.\n")
 
@@ -55,13 +62,6 @@ async def execute(headers):
         else:
           pagination_usernames = usernames[:100]
           del usernames[:100]
-
-      if len(usernames) > 0 and len(usernames) < 100:
-        pagination_usernames = usernames
-        usernames = []
-      else:
-        pagination_usernames = usernames[:100]
-        del usernames[:100]
       
     twitter_accounts_file.close()
 

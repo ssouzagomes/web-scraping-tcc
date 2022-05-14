@@ -21,6 +21,8 @@ async def execute(twitterAccountIds, headers):
 
       response = requests.get(url, headers=headers)
 
+      print(json.loads(response.text))
+
       if('data' in json.loads(response.text)):
         tweets = json.loads(response.text)['data']
 
@@ -63,60 +65,61 @@ async def execute(twitterAccountIds, headers):
             formattedTweet['url_media'] = ''
 
           await tweetRepository.create(formattedTweet, tweets_accounts_writer)
+      
+      if 'meta' in json.loads(response.text):
+        while 'next_token' in json.loads(response.text)['meta']:
+          next_token = json.loads(response.text)['meta']['next_token']
 
-      while ('next_token' in json.loads(response.text)['meta']):
-        next_token = json.loads(response.text)['meta']['next_token']
+          url = ("https://api.twitter.com/2/users/%s/tweets?max_results=100" % twitterAccountId +
+          "&expansions=attachments.media_keys" +
+          "&tweet.fields=public_metrics,created_at" +
+          "&media.fields=media_key,preview_image_url,type,url" +
+          "&pagination_token=%s" %next_token)
 
-        url = ("https://api.twitter.com/2/users/%s/tweets?max_results=100" % twitterAccountId +
-        "&expansions=attachments.media_keys" +
-        "&tweet.fields=public_metrics,created_at" +
-        "&media.fields=media_key,preview_image_url,type,url" +
-        "&pagination_token=%s" %next_token)
+          response = requests.get(url, headers=headers)
 
-        response = requests.get(url, headers=headers)
+          if('data' in json.loads(response.text)):
+            tweets = json.loads(response.text)['data']
 
-        if('data' in json.loads(response.text)):
-          tweets = json.loads(response.text)['data']
+            medias = []
+            haveMedias = False
 
-          medias = []
-          haveMedias = False
+            if 'includes' in json.loads(response.text):
+              if 'media' in json.loads(response.text)['includes']:
+                medias = json.loads(response.text)['includes']['media']
+                haveMedias = True
 
-          if 'includes' in json.loads(response.text):
-            if 'media' in json.loads(response.text)['includes']:
-              medias = json.loads(response.text)['includes']['media']
-              haveMedias = True
+            for tweet in tweets:
+              publicMetrics = tweet['public_metrics']
 
-          for tweet in tweets:
-            publicMetrics = tweet['public_metrics']
+              formattedTweet = {
+                'id': tweet['id'],
+                'text': tweet['text'],
+                'url_media': (),
+                'quantity_likes': publicMetrics['like_count'],
+                'quantity_retweets': publicMetrics['retweet_count'],
+                'quantity_quotes': publicMetrics['quote_count'],
+                'quantity_replys': publicMetrics['reply_count'],
+                'timestamp': tweet['created_at'],
+                'twitter_account_id': twitterAccountId,
+              }
 
-            formattedTweet = {
-              'id': tweet['id'],
-              'text': tweet['text'],
-              'url_media': (),
-              'quantity_likes': publicMetrics['like_count'],
-              'quantity_retweets': publicMetrics['retweet_count'],
-              'quantity_quotes': publicMetrics['quote_count'],
-              'quantity_replys': publicMetrics['reply_count'],
-              'timestamp': tweet['created_at'],
-              'twitter_account_id': twitterAccountId,
-            }
+              if 'attachments' in tweet:
+                if 'media_keys' in tweet['attachments']:
+                  media_keys = tweet['attachments']['media_keys']
 
-            if 'attachments' in tweet:
-              if 'media_keys' in tweet['attachments']:
-                media_keys = tweet['attachments']['media_keys']
+                  if haveMedias == True:
+                    for media in medias:
+                      for media_key in media_keys:
+                        if media['media_key'] == media_key and 'preview_image_url' in media:
+                          formattedTweet['url_media'] += (media['preview_image_url'],)
 
-                if haveMedias == True:
-                  for media in medias:
-                    for media_key in media_keys:
-                      if media['media_key'] == media_key and 'preview_image_url' in media:
-                        formattedTweet['url_media'] += (media['preview_image_url'],)
+              if len(formattedTweet['url_media']) > 0:
+                formattedTweet['url_media'] = ','.join(formattedTweet['url_media'])
+              else:
+                formattedTweet['url_media'] = ''
 
-            if len(formattedTweet['url_media']) > 0:
-              formattedTweet['url_media'] = ','.join(formattedTweet['url_media'])
-            else:
-              formattedTweet['url_media'] = ''
-
-            await tweetRepository.create(formattedTweet, tweets_accounts_writer)
+              await tweetRepository.create(formattedTweet, tweets_accounts_writer)
 
     tweets_accounts_file.close()
 
