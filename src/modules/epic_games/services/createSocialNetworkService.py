@@ -45,7 +45,6 @@ async def execute(addicionalGameInfos):
             url = socialNetwork[key]
             fk_game_id = socialNetwork['fk_game_id']
 
-
           formattedSocialNetwork = {
             'id': id,
             'description': description,

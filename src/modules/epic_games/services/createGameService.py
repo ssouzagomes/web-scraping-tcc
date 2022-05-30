@@ -37,8 +37,6 @@ async def execute():
     if 'game' in games_response.text:
       games = games_json['data']['Catalog']['searchStore']['elements']
 
-      print(len(games))
-
       formattedGames = []
       formattedAddicionalGameInfos = []
       addicionalGameInfos = []
@@ -51,13 +49,13 @@ async def execute():
 
             addicional_info_url = "https://store-content-ipv4.ak.epicgames.com/api/en-US/content/products/"+gameSlug
 
-            addicional_info_response = requests.get(addicional_info_url)
 
             platform = ''
             genres = ''
             developer = ''
             publisher = ''
 
+            addicional_info_response = requests.get(addicional_info_url)
             addicional_info_json = json.loads(addicional_info_response.text)
 
             if 'pages' in addicional_info_json:

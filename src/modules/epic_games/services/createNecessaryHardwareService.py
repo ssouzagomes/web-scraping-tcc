@@ -2,8 +2,6 @@ from modules.epic_games.repositories import necessaryHardwareRepository
 
 async def execute(addicional_game_infos, game_ids, necessary_hardware_writer):
   try:
-    print('slugs: {}'.format(len(game_ids)))
-    print('addicional_game_infos: {}'.format(len(addicional_game_infos)))
     for index, addicional_game_info in enumerate(addicional_game_infos):
       if 'requirements' in addicional_game_info:
         if 'systems' in addicional_game_info['requirements']:
