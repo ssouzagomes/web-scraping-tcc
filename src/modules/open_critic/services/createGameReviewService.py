@@ -75,7 +75,7 @@ async def execute():
             score,
             snippet,
             review['publishedDate'],
-            # 'top_critic': review[]
+            not review['Outlet']['isContributor'],
             epic_games_id
           )
 
@@ -109,7 +109,7 @@ async def execute():
               score,
               snippet,
               review['publishedDate'],
-              # 'top_critic': review[]
+              not review['Outlet']['isContributor'],
               epic_games_id
             )
 

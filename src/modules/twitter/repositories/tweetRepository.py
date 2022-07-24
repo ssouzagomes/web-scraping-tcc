@@ -9,6 +9,7 @@ async def create(tweet, tweets_accounts_writer):
       tweet['quantity_quotes'],
       tweet['quantity_replys'],
       tweet['timestamp'],
+      tweet['in_reply_to_user_id'],
       tweet['twitter_account_id']
     )
 

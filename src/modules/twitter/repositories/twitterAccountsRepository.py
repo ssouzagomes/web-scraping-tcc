@@ -57,7 +57,6 @@ async def findById(id):
     twitterAccount = ''
 
     for row in csv_reader:
-      print('oi')
       if row['id'] == id:
         print(row['id'])
 

@@ -9,19 +9,17 @@ async def execute(twitterAccountIds, headers):
     tweets_accounts_file = open('tweets.csv', 'w')
     tweets_accounts_writer = csv.writer(tweets_accounts_file)
     header_tweets_accounts_file = (
-      'id', 'text', 'url_media', 'quantity_likes', 'quantity_retweets', 'quantity_quotes', 'quantity_replys', 'timestamp', 'twitter_account_id'
+      'id', 'text', 'url_media', 'quantity_likes', 'quantity_retweets', 'quantity_quotes', 'quantity_replys', 'timestamp', 'in_reply_to_user_id', 'twitter_account_id'
     )
     tweets_accounts_writer.writerow(header_tweets_accounts_file)
 
     for twitterAccountId in twitterAccountIds:
       url = ("https://api.twitter.com/2/users/%s/tweets?max_results=100" % twitterAccountId +
-        "&expansions=attachments.media_keys" +
+        "&expansions=attachments.media_keys,in_reply_to_user_id" +
         "&tweet.fields=public_metrics,created_at,in_reply_to_user_id" +
         "&media.fields=media_key,preview_image_url,type,url")
 
       response = requests.get(url, headers=headers)
-
-      print(json.loads(response.text))
 
       if('data' in json.loads(response.text)):
         tweets = json.loads(response.text)['data']
@@ -36,6 +34,10 @@ async def execute(twitterAccountIds, headers):
 
         for tweet in tweets:
           publicMetrics = tweet['public_metrics']
+          inReplyId = ''
+
+          if 'in_reply_to_user_id' in tweet:
+            inReplyId = tweet['in_reply_to_user_id']
 
           formattedTweet = {
             'id': tweet['id'],
@@ -46,6 +48,7 @@ async def execute(twitterAccountIds, headers):
             'quantity_quotes': publicMetrics['quote_count'],
             'quantity_replys': publicMetrics['reply_count'],
             'timestamp': tweet['created_at'],
+            'in_reply_to_user_id': inReplyId,
             'twitter_account_id': twitterAccountId,
           }
 
@@ -71,7 +74,7 @@ async def execute(twitterAccountIds, headers):
           next_token = json.loads(response.text)['meta']['next_token']
 
           url = ("https://api.twitter.com/2/users/%s/tweets?max_results=100" % twitterAccountId +
-          "&expansions=attachments.media_keys" +
+          "&expansions=attachments.media_keys,in_reply_to_user_id" +
           "&tweet.fields=public_metrics,created_at" +
           "&media.fields=media_key,preview_image_url,type,url" +
           "&pagination_token=%s" %next_token)
@@ -91,6 +94,10 @@ async def execute(twitterAccountIds, headers):
 
             for tweet in tweets:
               publicMetrics = tweet['public_metrics']
+              inReplyId = ''
+
+              if 'in_reply_to_user_id' in tweet:
+                inReplyId = tweet['in_reply_to_user_id']
 
               formattedTweet = {
                 'id': tweet['id'],
@@ -101,6 +108,7 @@ async def execute(twitterAccountIds, headers):
                 'quantity_quotes': publicMetrics['quote_count'],
                 'quantity_replys': publicMetrics['reply_count'],
                 'timestamp': tweet['created_at'],
+                'in_reply_to_user_id': inReplyId,
                 'twitter_account_id': twitterAccountId,
               }
 
