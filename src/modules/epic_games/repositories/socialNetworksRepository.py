@@ -43,11 +43,19 @@ async def getAllUsernames():
       username = username.replace('http://twitter.com/', '')
       username = username.replace('https://www.twitter.com/', '')
       username = username.replace('http://www.twitter.com/', '')
-      username = username.replace('/', '')
+      
+      index = -1
+
+      if '/' in username:
+        index = username.index('/')
+
+      if index > -1:
+        username = username[:index]
+
       username = username.replace('https:', '')
       username = username.replace('http:', '')
       username = username.replace('.comtwitter', '')
-      username = username.replace(' ', '')
+      username = username.replace(' ', '') 
 
       index = -1
 
@@ -56,7 +64,9 @@ async def getAllUsernames():
 
       if index > -1:
         username = username[:index-1]
-      formattedUsernames.append(username)
+
+      if username != '':
+        formattedUsernames.append(username)
 
     csv_file.close()
 

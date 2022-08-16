@@ -14,7 +14,16 @@ async def execute(headers):
     )
     twitter_accounts_writer.writerow(header_twitter_accounts_file)
 
+    tweets_accounts_file = open('tweets.csv', 'w')
+    tweets_accounts_writer = csv.writer(tweets_accounts_file)
+    header_tweets_accounts_file = (
+      'id', 'text', 'url_media', 'quantity_likes', 'quantity_retweets', 'quantity_quotes', 'quantity_replys', 'timestamp', 'in_reply_to_user_id', 'twitter_account_id'
+    )
+    tweets_accounts_writer.writerow(header_tweets_accounts_file)
+
     usernames = await socialNetworksRepository.getAllUsernames()
+
+    usernames = list(dict.fromkeys(usernames))
 
     if len(usernames) > 0 and len(usernames) <= 100:
       pagination_usernames = usernames
@@ -31,6 +40,8 @@ async def execute(headers):
 
       response = requests.get(url, headers=headers)
 
+      # print(pagination_usernames)
+      print(len(pagination_usernames))
       if 'data' in json.loads(response.text):
         twitterAccounts = json.loads(response.text)['data']
 
@@ -44,7 +55,7 @@ async def execute(headers):
             twitterAccountIds.append(twitterAccount['id'])
             twitterAccountUsernames.append(twitterAccount['username'])
 
-        await createTweetService.execute(twitterAccountIds, headers)
+        await createTweetService.execute(twitterAccountIds, tweets_accounts_writer, headers)
 
         if len(usernames) > 0 and len(usernames) < 100:
           pagination_usernames = usernames
@@ -64,6 +75,7 @@ async def execute(headers):
           del usernames[:100]
       
     twitter_accounts_file.close()
+    tweets_accounts_file.close()
 
   except HTTPError as http_error:
     print('HTTP error occurred: %s' %http_error)

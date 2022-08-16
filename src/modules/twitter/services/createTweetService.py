@@ -2,16 +2,10 @@ import requests, json, csv
 from requests.models import HTTPError
 
 from modules.twitter.repositories import tweetRepository
-from modules.twitter.repositories import twitterAccountsRepository
 
-async def execute(twitterAccountIds, headers):
+async def execute(twitterAccountIds, tweets_accounts_writer, headers):
   try:
-    tweets_accounts_file = open('tweets.csv', 'w')
-    tweets_accounts_writer = csv.writer(tweets_accounts_file)
-    header_tweets_accounts_file = (
-      'id', 'text', 'url_media', 'quantity_likes', 'quantity_retweets', 'quantity_quotes', 'quantity_replys', 'timestamp', 'in_reply_to_user_id', 'twitter_account_id'
-    )
-    tweets_accounts_writer.writerow(header_tweets_accounts_file)
+    size = 0
 
     for twitterAccountId in twitterAccountIds:
       url = ("https://api.twitter.com/2/users/%s/tweets?max_results=100" % twitterAccountId +
@@ -21,7 +15,12 @@ async def execute(twitterAccountIds, headers):
 
       response = requests.get(url, headers=headers)
 
+      print(size)
+
       if('data' in json.loads(response.text)):
+        size += len(json.loads(response.text)['data'])
+        print(size)
+
         tweets = json.loads(response.text)['data']
 
         medias = []
@@ -82,6 +81,8 @@ async def execute(twitterAccountIds, headers):
           response = requests.get(url, headers=headers)
 
           if('data' in json.loads(response.text)):
+            size += len(json.loads(response.text)['data'])
+            print(size)
             tweets = json.loads(response.text)['data']
 
             medias = []
@@ -128,8 +129,6 @@ async def execute(twitterAccountIds, headers):
                 formattedTweet['url_media'] = ''
 
               await tweetRepository.create(formattedTweet, tweets_accounts_writer)
-
-    tweets_accounts_file.close()
 
     print("\nTweets inserted successfully into tweets table.\n")
   except HTTPError as http_error:
