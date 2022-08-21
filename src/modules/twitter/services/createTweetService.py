@@ -3,10 +3,8 @@ from requests.models import HTTPError
 
 from modules.twitter.repositories import tweetRepository
 
-async def execute(twitterAccountIds, tweets_accounts_writer, headers):
+async def execute(twitterAccountIds, tweets_writer, headers):
   try:
-    size = 0
-
     for twitterAccountId in twitterAccountIds:
       url = ("https://api.twitter.com/2/users/%s/tweets?max_results=100" % twitterAccountId +
         "&expansions=attachments.media_keys,in_reply_to_user_id" +
@@ -15,12 +13,8 @@ async def execute(twitterAccountIds, tweets_accounts_writer, headers):
 
       response = requests.get(url, headers=headers)
 
-      print(size)
 
       if('data' in json.loads(response.text)):
-        size += len(json.loads(response.text)['data'])
-        print(size)
-
         tweets = json.loads(response.text)['data']
 
         medias = []
@@ -66,7 +60,7 @@ async def execute(twitterAccountIds, tweets_accounts_writer, headers):
           else:
             formattedTweet['url_media'] = ''
 
-          await tweetRepository.create(formattedTweet, tweets_accounts_writer)
+          await tweetRepository.create(formattedTweet, tweets_writer)
       
       if 'meta' in json.loads(response.text):
         while 'next_token' in json.loads(response.text)['meta']:
@@ -81,8 +75,6 @@ async def execute(twitterAccountIds, tweets_accounts_writer, headers):
           response = requests.get(url, headers=headers)
 
           if('data' in json.loads(response.text)):
-            size += len(json.loads(response.text)['data'])
-            print(size)
             tweets = json.loads(response.text)['data']
 
             medias = []
@@ -128,7 +120,7 @@ async def execute(twitterAccountIds, tweets_accounts_writer, headers):
               else:
                 formattedTweet['url_media'] = ''
 
-              await tweetRepository.create(formattedTweet, tweets_accounts_writer)
+              await tweetRepository.create(formattedTweet, tweets_writer)
 
     print("\nTweets inserted successfully into tweets table.\n")
   except HTTPError as http_error:

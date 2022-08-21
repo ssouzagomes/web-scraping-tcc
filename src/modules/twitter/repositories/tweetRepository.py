@@ -1,4 +1,4 @@
-async def create(tweet, tweets_accounts_writer):
+async def create(tweet, tweets_writer):
   try:
     values = (
       tweet['id'],
@@ -13,7 +13,7 @@ async def create(tweet, tweets_accounts_writer):
       tweet['twitter_account_id']
     )
 
-    tweets_accounts_writer.writerow(values)
+    tweets_writer.writerow(values)
 
   except Exception as error:
     print('Internal error occurred: %s' %error)
