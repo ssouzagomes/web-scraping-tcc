@@ -15,3 +15,5 @@ ACCESS_TOKEN_SECRET = ['access_token_secret']
 headers = CaseInsensitiveDict()
 headers["Accept"] = "application/json"
 headers["Authorization"] = "Bearer " + BEARER_TOKEN
+
+baseUrl = twitter_api['url']
